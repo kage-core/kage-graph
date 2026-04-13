@@ -160,19 +160,72 @@ jobs:
               print("No score changes.")
           PYEOF
 
+      - name: Rebuild catalog hot_nodes after score update
+        run: |
+          python3 - << 'PYEOF'
+          import json, os, glob
+
+          # Read all current node scores from the (freshly updated) node files
+          def parse_frontmatter(content):
+              if not content.startswith("---"):
+                  return {}
+              end = content.find("---", 3)
+              if end == -1:
+                  return {}
+              fm_text = content[3:end]
+              result = {}
+              for line in fm_text.split("\n"):
+                  if ":" in line and not line.startswith(" ") and not line.startswith("-"):
+                      k, _, v = line.partition(":")
+                      result[k.strip()] = v.strip().strip('"')
+              return result
+
+          all_nodes = []
+          for node_file in glob.glob("domains/*/nodes/*.md"):
+              content = open(node_file).read()
+              fm = parse_frontmatter(content)
+              if not fm:
+                  continue
+              slug = os.path.basename(node_file).replace(".md", "")
+              domain = node_file.split("/")[1]
+              superseded = fm.get("superseded_by", "null").strip()
+              if superseded and superseded != "null":
+                  continue  # skip superseded nodes from hot_nodes
+              all_nodes.append({
+                  "id": f"{domain}/{slug}",
+                  "score": int(fm.get("score", "50")),
+                  "uses": int(fm.get("uses", "0"))
+              })
+
+          all_nodes.sort(key=lambda x: (-x["score"], -x["uses"]))
+          hot_nodes = [n["id"] for n in all_nodes[:5]]
+
+          # Patch catalog.json hot_nodes in place
+          if not os.path.isfile("catalog.json"):
+              print("catalog.json not found — skipping hot_nodes update")
+          else:
+              with open("catalog.json") as f:
+                  catalog = json.load(f)
+              catalog["hot_nodes"] = hot_nodes
+              with open("catalog.json", "w") as f:
+                  json.dump(catalog, f, indent=2)
+              print(f"hot_nodes updated: {hot_nodes}")
+          PYEOF
+
       - name: Commit score updates
         run: |
           git config user.name "kage-bot"
           git config user.email "bot@kage-memory.dev"
 
-          git add domains/*/nodes/*.md signals/scores.json
+          git add domains/*/nodes/*.md signals/scores.json catalog.json
 
           if git diff --cached --quiet; then
             echo "No score changes to commit."
           else
-            CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
+            CHANGED=$(git diff --cached --name-only | grep -c 'nodes/' || echo 0)
             git commit -m "chore: nightly score refresh — ${CHANGED} node(s) updated [skip ci]
 
-          Scores recomputed from votes + uses. Stale nodes marked fresh=false."
+          Scores recomputed from votes + uses. Stale nodes marked fresh=false.
+          catalog.json hot_nodes updated to reflect current scores."
             git push
           fi

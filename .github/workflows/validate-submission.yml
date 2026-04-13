@@ -21,8 +21,39 @@ jobs:
         run: |
           FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
             | grep -E '^domains/.+/nodes/.+\.md$' | tr '\n' ' ')
+          NEW_FILES=$(git diff --name-only --diff-filter=A origin/${{ github.base_ref }}...HEAD \
+            | grep -E '^domains/.+/nodes/.+\.md$' | tr '\n' ' ')
           echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "new_files=$NEW_FILES" >> $GITHUB_OUTPUT
           echo "Changed node files: $FILES"
+          echo "New node files: $NEW_FILES"
+
+      - name: Slug collision check (new files only)
+        if: steps.changed.outputs.new_files != ''
+        run: |
+          set -e
+          ERRORS=0
+
+          # Fetch the base branch to check existing slugs
+          git fetch origin ${{ github.base_ref }} --depth=1
+
+          for FILE in ${{ steps.changed.outputs.new_files }}; do
+            # Check if this path already exists on main
+            if git show origin/${{ github.base_ref }}:"$FILE" > /dev/null 2>&1; then
+              echo "ERROR: $FILE already exists on ${{ github.base_ref }}."
+              echo "  To update an existing node, submit a PR that edits the file directly."
+              echo "  To replace it with a breaking change, use supersedes/superseded_by edges."
+              ERRORS=$((ERRORS+1))
+            else
+              echo "OK: $FILE is a new slug — no collision"
+            fi
+          done
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo ""
+            echo "Slug collision(s) detected. See above."
+            exit 1
+          fi
 
       - name: Validate frontmatter schema
         if: steps.changed.outputs.files != ''
