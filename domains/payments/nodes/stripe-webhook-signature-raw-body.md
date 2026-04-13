@@ -16,6 +16,7 @@ ttl_days: 730
 supersedes: null
 superseded_by: null
 related: []
+summary: "express.json() parses the body before stripe.webhooks.constructEvent() sees it — HMAC over re-serialized object never matches Stripe's signature. Mount webhook route before global JSON middleware using express.raw({ type: 'application/json' })."
 ---
 
 # Stripe webhook signature verification fails when body is parsed before verification

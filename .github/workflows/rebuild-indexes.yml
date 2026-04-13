@@ -149,7 +149,7 @@ jobs:
                   if node_fresh:
                       fresh_count += 1
 
-                  summary = extract_summary(body)
+                  summary = fm.get('summary') or extract_summary(body)
 
                   node_entry = {
                       'id': slug,
