@@ -210,7 +210,7 @@ related:
 
 ## Contributing
 
-See [submissions/template.md](submissions/template.md) for type-specific templates and the full quality bar.
+Anyone can submit. Fork the repo, add a node file, open a PR — or run `/kage submit <node-file>` from Claude Code and it handles the fork and PR automatically.
 
 **PR title format:**
 ```
@@ -219,4 +219,6 @@ See [submissions/template.md](submissions/template.md) for type-specific templat
 [decision] database: Drizzle over Prisma for edge runtimes
 ```
 
-**Quality bar:** specific (exact method names, flags, config keys) — reproducible (working example included) — scoped (which versions) — honest (admits when the alternative is fine) — atomic (one failure mode or one decision per node).
+Every PR requires **1 approval + CI green** to merge. Maintainers review initially; frequent contributors earn domain reviewer status.
+
+See [submissions/template.md](submissions/template.md) for type-specific templates and [CONTRIBUTING.md](CONTRIBUTING.md) for the full review process.
