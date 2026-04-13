@@ -42,39 +42,45 @@ jobs:
               fm_text = content[3:end]
               body = content[end+4:]
               fm = {}
-              in_tags = False
-              tags_list = []
+              in_list = None   # name of the list field currently being parsed
+              list_buf = []
+              LIST_FIELDS = ('tags', 'stack', 'related')
               for line in fm_text.split('\n'):
-                  if in_tags:
+                  if in_list:
                       stripped = line.strip()
                       if stripped.startswith(']'):
-                          in_tags = False
-                          fm['tags'] = tags_list
+                          fm[in_list] = list_buf
+                          in_list = None
                       elif stripped.startswith('-'):
-                          tags_list.append(stripped.lstrip('- ').strip().strip('"\''))
-                      elif '[' not in stripped and stripped:
-                          in_tags = False
-                          fm['tags'] = tags_list
-                      continue
+                          list_buf.append(stripped.lstrip('- ').strip().strip('"\''))
+                      elif stripped and not stripped.startswith(' '):
+                          fm[in_list] = list_buf
+                          in_list = None
+                          # fall through to process this line as a new key
+                      else:
+                          continue
+                      if in_list:
+                          continue
                   if ':' not in line:
                       continue
                   key, _, val = line.partition(':')
                   key = key.strip()
                   val = val.strip().strip('"')
-                  if key == 'tags':
+                  if key in LIST_FIELDS:
                       if '[' in val and ']' in val:
                           inner = val.strip('[]')
-                          tags_list = [t.strip().strip('"\'') for t in inner.split(',') if t.strip()]
-                          fm['tags'] = tags_list
+                          fm[key] = [t.strip().strip('"\'') for t in inner.split(',') if t.strip()]
                       elif '[' in val:
-                          in_tags = True
-                          tags_list = []
+                          in_list = key
+                          list_buf = []
                           inner = val.lstrip('[').strip()
                           if inner and inner != ']':
                               for t in inner.split(','):
                                   t = t.strip().strip('"\'')
                                   if t and not t.startswith(']'):
-                                      tags_list.append(t)
+                                      list_buf.append(t)
+                      else:
+                          fm[key] = []
                   elif key in ('score', 'uses', 'ttl_days'):
                       try:
                           fm[key] = int(val)
@@ -84,6 +90,8 @@ jobs:
                       fm[key] = val.lower() == 'true'
                   else:
                       fm[key] = val
+              if in_list:
+                  fm[in_list] = list_buf
               return fm, body
 
           def extract_summary(body):
@@ -143,7 +151,7 @@ jobs:
 
                   summary = extract_summary(body)
 
-                  nodes.append({
+                  node_entry = {
                       'id': slug,
                       'type': fm.get('type', ''),
                       'title': fm.get('title', ''),
@@ -156,7 +164,11 @@ jobs:
                       'fresh': node_fresh,
                       'ttl_days': fm.get('ttl_days', 365),
                       'summary': summary,
-                  })
+                  }
+                  stack = fm.get('stack', [])
+                  if stack:
+                      node_entry['stack'] = stack
+                  nodes.append(node_entry)
 
               index = {
                   'domain': domain,
