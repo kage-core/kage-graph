@@ -160,6 +160,68 @@ jobs:
               print("No score changes.")
           PYEOF
 
+      - name: Patch domain index.json scores
+        run: |
+          python3 - << 'PYEOF'
+          import json, os, glob
+
+          def parse_frontmatter(content):
+              if not content.startswith("---"):
+                  return {}
+              end = content.find("---", 3)
+              if end == -1:
+                  return {}
+              result = {}
+              for line in content[3:end].split("\n"):
+                  if ":" in line and not line.startswith(" ") and not line.startswith("-"):
+                      k, _, v = line.partition(":")
+                      result[k.strip()] = v.strip().strip('"')
+              return result
+
+          updated_indexes = 0
+
+          for domain_dir in glob.glob("domains/*/"):
+              domain = os.path.basename(domain_dir.rstrip("/"))
+              index_path = f"{domain_dir}index.json"
+              nodes_dir = f"{domain_dir}nodes"
+
+              if not os.path.isfile(index_path) or not os.path.isdir(nodes_dir):
+                  continue
+
+              with open(index_path) as f:
+                  index = json.load(f)
+
+              index_changed = False
+              node_map = {n["id"]: n for n in index.get("nodes", [])}
+
+              for node_file in glob.glob(f"{nodes_dir}/*.md"):
+                  slug = os.path.basename(node_file).replace(".md", "")
+                  fm = parse_frontmatter(open(node_file).read())
+                  if not fm or slug not in node_map:
+                      continue
+
+                  entry = node_map[slug]
+                  new_score = int(fm.get("score", "50"))
+                  new_fresh = fm.get("fresh", "true").lower() == "true"
+
+                  if entry.get("score") != new_score or entry.get("fresh") != new_fresh:
+                      entry["score"] = new_score
+                      entry["fresh"] = new_fresh
+                      index_changed = True
+
+              if index_changed:
+                  # Recompute fresh_node_count
+                  nodes_list = list(node_map.values())
+                  index["nodes"] = nodes_list
+                  index["fresh_node_count"] = sum(1 for n in nodes_list if n.get("fresh", True))
+                  with open(index_path, "w") as f:
+                      json.dump(index, f, indent=2)
+                  updated_indexes += 1
+                  print(f"  Patched scores in {index_path}")
+
+          print(f"Updated {updated_indexes} domain index(es).")
+          PYEOF
+
       - name: Rebuild catalog hot_nodes after score update
         run: |
           python3 - << 'PYEOF'
@@ -217,7 +279,7 @@ jobs:
           git config user.name "kage-bot"
           git config user.email "bot@kage-memory.dev"
 
-          git add domains/*/nodes/*.md signals/scores.json catalog.json
+          git add domains/*/nodes/*.md domains/*/index.json signals/scores.json catalog.json
 
           if git diff --cached --quiet; then
             echo "No score changes to commit."
