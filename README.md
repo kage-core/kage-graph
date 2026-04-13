@@ -2,7 +2,7 @@
 
 A community-maintained knowledge graph for Claude Code agents. Validated patterns, gotchas, configurations, and architectural decisions across 10 technology domains — served live via GitHub's CDN, no API key required.
 
-This is **Tier 3** of the [Kage memory system](https://github.com/Kage18/Kage). Project and personal memory live in your repos. This graph holds knowledge generic enough to be useful to anyone.
+This is **Tier 3** of the [Kage memory system](https://github.com/kage-core/Kage). Project and personal memory live in your repos. This graph holds knowledge generic enough to be useful to anyone.
 
 ---
 
@@ -25,10 +25,10 @@ Five types of nodes, each with a strict format:
 The `kage-graph` sub-agent fetches from this repo using raw GitHub CDN URLs:
 
 ```
-https://raw.githubusercontent.com/Kage18/kage-graph/main/catalog.json
-https://raw.githubusercontent.com/Kage18/kage-graph/main/domains/{domain}/index.json
-https://raw.githubusercontent.com/Kage18/kage-graph/main/domains/{domain}/nodes/{slug}.md
-https://raw.githubusercontent.com/Kage18/kage-graph/main/tags/{tag}.json
+https://raw.githubusercontent.com/kage-core/kage-graph/main/catalog.json
+https://raw.githubusercontent.com/kage-core/kage-graph/main/domains/{domain}/index.json
+https://raw.githubusercontent.com/kage-core/kage-graph/main/domains/{domain}/nodes/{slug}.md
+https://raw.githubusercontent.com/kage-core/kage-graph/main/tags/{tag}.json
 ```
 
 **Retrieval protocol** (max 6 HTTP calls per query):
