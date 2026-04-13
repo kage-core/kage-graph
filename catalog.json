@@ -3,21 +3,21 @@
   "schema_version": "2.0",
   "updated": "2026-04-13T00:00:00Z",
   "domains": {
-    "auth":       { "nodes": 0, "fresh_nodes": 0, "top_tags": ["oauth", "jwt", "session", "supabase", "nextjs", "sso"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "database":   { "nodes": 0, "fresh_nodes": 0, "top_tags": ["postgres", "mysql", "prisma", "drizzle", "migrations", "redis"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "deployment": { "nodes": 0, "fresh_nodes": 0, "top_tags": ["docker", "vercel", "cloudflare", "fly", "github-actions", "nginx"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "frontend":   { "nodes": 0, "fresh_nodes": 0, "top_tags": ["react", "nextjs", "vue", "svelte", "tailwind", "ssr"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "testing":    { "nodes": 0, "fresh_nodes": 0, "top_tags": ["jest", "vitest", "playwright", "cypress", "mocking"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "api-design": { "nodes": 0, "fresh_nodes": 0, "top_tags": ["rest", "graphql", "trpc", "webhook", "rate-limit", "openapi"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "ai-agents":  { "nodes": 1, "fresh_nodes": 1, "top_tags": ["claude", "claude-code", "hooks", "agents", "memory", "kage", "permissions"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "payments":   { "nodes": 0, "fresh_nodes": 0, "top_tags": ["stripe", "paddle", "billing", "subscription", "webhook"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "storage":    { "nodes": 0, "fresh_nodes": 0, "top_tags": ["s3", "r2", "gcs", "upload", "cdn", "blob"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "email":      { "nodes": 0, "fresh_nodes": 0, "top_tags": ["smtp", "sendgrid", "resend", "transactional"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} }
+    "auth":       { "nodes": 1, "fresh_nodes": 1, "top_tags": ["oauth", "jwt", "session", "refresh-token", "security", "supabase"], "node_types": {"gotcha": 0, "pattern": 1, "config": 0, "decision": 0, "reference": 0} },
+    "database":   { "nodes": 1, "fresh_nodes": 1, "top_tags": ["postgres", "prisma", "serverless", "connections", "vercel", "lambda"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "deployment": { "nodes": 1, "fresh_nodes": 1, "top_tags": ["docker", "secrets", "security", "build", "layers", "environment"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "frontend":   { "nodes": 1, "fresh_nodes": 1, "top_tags": ["nextjs", "react", "hydration", "ssr", "browser", "date"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "testing":    { "nodes": 1, "fresh_nodes": 1, "top_tags": ["vitest", "jest", "mock", "hoisting", "vi.mock", "module"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "api-design": { "nodes": 1, "fresh_nodes": 1, "top_tags": ["webhook", "idempotency", "signature", "hmac", "stripe", "deduplication"], "node_types": {"gotcha": 0, "pattern": 1, "config": 0, "decision": 0, "reference": 0} },
+    "ai-agents":  { "nodes": 2, "fresh_nodes": 2, "top_tags": ["claude-code", "hooks", "agents", "permissions", "stop-hook", "background"], "node_types": {"gotcha": 2, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "payments":   { "nodes": 1, "fresh_nodes": 1, "top_tags": ["stripe", "webhook", "signature", "body-parser", "raw-body", "express"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "storage":    { "nodes": 1, "fresh_nodes": 1, "top_tags": ["s3", "presigned-url", "upload", "content-type", "aws", "cors"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "email":      { "nodes": 1, "fresh_nodes": 1, "top_tags": ["resend", "react-email", "plain-text", "spam", "deliverability", "smtp"], "node_types": {"gotcha": 0, "pattern": 0, "config": 1, "decision": 0, "reference": 0} }
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions"
   ],
-  "total_nodes": 1,
+  "total_nodes": 11,
   "total_uses_30d": 1,
   "contributors": 1
 }

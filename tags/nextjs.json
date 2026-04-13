@@ -1,0 +1,7 @@
+{
+  "tag": "nextjs",
+  "node_count": 1,
+  "nodes": [
+    { "id": "frontend/nextjs-hydration-mismatch", "score": 50, "domain": "frontend" }
+  ]
+}

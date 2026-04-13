@@ -1,0 +1,22 @@
+{
+  "domain": "api-design",
+  "updated": "2026-04-13T00:00:00Z",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "webhook-idempotency-key",
+      "type": "pattern",
+      "title": "Webhook receivers must verify signatures and process events idempotently",
+      "tags": ["webhook", "idempotency", "signature", "stripe", "hmac", "deduplication"],
+      "stack": ["node@>=16", "express@>=4"],
+      "severity": "hard-error",
+      "score": 50,
+      "uses": 0,
+      "added": "2026-04-13",
+      "updated": "2026-04-13",
+      "fresh": true,
+      "ttl_days": 365,
+      "summary": "Skip HMAC signature verification → spoofable endpoint. Skip idempotency check → double-charges/emails on provider retry. Verify with timingSafeEqual on raw body bytes; deduplicate on delivery ID before any side effects; acknowledge 200 fast and process async."
+    }
+  ]
+}

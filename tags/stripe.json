@@ -1,0 +1,8 @@
+{
+  "tag": "stripe",
+  "node_count": 2,
+  "nodes": [
+    { "id": "payments/stripe-webhook-signature-raw-body", "score": 50, "domain": "payments" },
+    { "id": "api-design/webhook-idempotency-key", "score": 50, "domain": "api-design" }
+  ]
+}

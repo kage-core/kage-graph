@@ -1,0 +1,7 @@
+{
+  "tag": "jwt",
+  "node_count": 1,
+  "nodes": [
+    { "id": "auth/jwt-expiry-short-lived-access", "score": 50, "domain": "auth" }
+  ]
+}

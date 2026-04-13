@@ -1,0 +1,22 @@
+{
+  "domain": "deployment",
+  "updated": "2026-04-13T00:00:00Z",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "docker-env-not-in-image",
+      "type": "gotcha",
+      "title": "Secrets baked into Docker image layers are recoverable even after removal",
+      "tags": ["docker", "secrets", "environment", "build", "security", "layers"],
+      "stack": ["docker@>=20"],
+      "severity": "hard-error",
+      "score": 50,
+      "uses": 0,
+      "added": "2026-04-13",
+      "updated": "2026-04-13",
+      "fresh": true,
+      "ttl_days": 365,
+      "summary": "Secrets written in a Dockerfile layer survive even if a later RUN removes them — every layer is recoverable via docker history or image export. Use BuildKit --secret mounts, runtime ENV vars, or multi-stage builds where the build stage never ships."
+    }
+  ]
+}

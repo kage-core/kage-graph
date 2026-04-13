@@ -1,0 +1,22 @@
+{
+  "domain": "frontend",
+  "updated": "2026-04-13T00:00:00Z",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "nextjs-hydration-mismatch",
+      "type": "gotcha",
+      "title": "Next.js hydration mismatch when rendering date/time or browser-only values on server",
+      "tags": ["nextjs", "react", "hydration", "ssr", "date", "browser", "window"],
+      "stack": ["next@>=13", "react@>=18"],
+      "severity": "hard-error",
+      "score": 50,
+      "uses": 0,
+      "added": "2026-04-13",
+      "updated": "2026-04-13",
+      "fresh": true,
+      "ttl_days": 365,
+      "summary": "new Date(), Math.random(), window.*, localStorage.* render different values server vs client → Hydration failed error. Fix: useEffect + null initial state to defer browser-only values; dynamic(..., { ssr: false }) for whole components."
+    }
+  ]
+}

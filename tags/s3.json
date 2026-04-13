@@ -1,0 +1,7 @@
+{
+  "tag": "s3",
+  "node_count": 1,
+  "nodes": [
+    { "id": "storage/s3-presigned-url-content-type", "score": 50, "domain": "storage" }
+  ]
+}
