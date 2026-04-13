@@ -1,0 +1,18 @@
+{
+  "tag": "signature",
+  "node_count": 2,
+  "nodes": [
+    {
+      "id": "api-design/webhook-idempotency-key",
+      "domain": "api-design",
+      "type": "pattern",
+      "score": 50
+    },
+    {
+      "id": "payments/stripe-webhook-signature-raw-body",
+      "domain": "payments",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

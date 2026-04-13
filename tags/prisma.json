@@ -2,6 +2,11 @@
   "tag": "prisma",
   "node_count": 1,
   "nodes": [
-    { "id": "database/prisma-serverless-connection-exhaustion", "score": 50, "domain": "database" }
+    {
+      "id": "database/prisma-serverless-connection-exhaustion",
+      "domain": "database",
+      "type": "gotcha",
+      "score": 50
+    }
   ]
 }

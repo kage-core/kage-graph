@@ -2,6 +2,11 @@
   "tag": "vitest",
   "node_count": 1,
   "nodes": [
-    { "id": "testing/vitest-mock-module-hoisting", "score": 50, "domain": "testing" }
+    {
+      "id": "testing/vitest-mock-module-hoisting",
+      "domain": "testing",
+      "type": "gotcha",
+      "score": 50
+    }
   ]
 }

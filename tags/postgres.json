@@ -1,0 +1,12 @@
+{
+  "tag": "postgres",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "database/prisma-serverless-connection-exhaustion",
+      "domain": "database",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

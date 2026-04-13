@@ -1,0 +1,12 @@
+{
+  "tag": "idempotency",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "api-design/webhook-idempotency-key",
+      "domain": "api-design",
+      "type": "pattern",
+      "score": 50
+    }
+  ]
+}

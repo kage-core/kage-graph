@@ -2,6 +2,11 @@
   "tag": "docker",
   "node_count": 1,
   "nodes": [
-    { "id": "deployment/docker-env-not-in-image", "score": 50, "domain": "deployment" }
+    {
+      "id": "deployment/docker-env-not-in-image",
+      "domain": "deployment",
+      "type": "gotcha",
+      "score": 50
+    }
   ]
 }

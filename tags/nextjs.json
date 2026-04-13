@@ -2,6 +2,11 @@
   "tag": "nextjs",
   "node_count": 1,
   "nodes": [
-    { "id": "frontend/nextjs-hydration-mismatch", "score": 50, "domain": "frontend" }
+    {
+      "id": "frontend/nextjs-hydration-mismatch",
+      "domain": "frontend",
+      "type": "gotcha",
+      "score": 50
+    }
   ]
 }

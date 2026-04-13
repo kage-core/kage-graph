@@ -1,0 +1,12 @@
+{
+  "tag": "express",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "payments/stripe-webhook-signature-raw-body",
+      "domain": "payments",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

@@ -1,28 +1,289 @@
 {
   "version": "1.0.0",
   "schema_version": "2.0",
-  "updated": "2026-04-13T00:00:00Z",
+  "updated": "2026-04-13T10:38:09Z",
   "domains": {
-    "auth":          { "nodes": 1, "fresh_nodes": 1, "top_tags": ["oauth", "jwt", "session", "refresh-token", "supabase", "passkey", "magic-link", "rbac", "sso", "saml"], "node_types": {"gotcha": 0, "pattern": 1, "config": 0, "decision": 0, "reference": 0} },
-    "database":      { "nodes": 1, "fresh_nodes": 1, "top_tags": ["postgres", "mysql", "sqlite", "prisma", "drizzle", "migration", "orm", "redis", "mongodb", "planetscale", "neon", "serverless", "connections"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "deployment":    { "nodes": 1, "fresh_nodes": 1, "top_tags": ["docker", "vercel", "cloudflare", "fly", "github-actions", "nginx", "k8s", "railway", "render", "ecs", "helm", "secrets", "layers"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "frontend":      { "nodes": 1, "fresh_nodes": 1, "top_tags": ["react", "nextjs", "vue", "svelte", "tailwind", "ssr", "hydration", "app-router", "vite", "astro", "remix", "browser", "window"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "testing":       { "nodes": 1, "fresh_nodes": 1, "top_tags": ["jest", "vitest", "playwright", "cypress", "mock", "e2e", "msw", "testing-library", "snapshot", "hoisting", "vi.mock"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "api-design":    { "nodes": 1, "fresh_nodes": 1, "top_tags": ["rest", "graphql", "trpc", "webhook", "rate-limit", "openapi", "pagination", "versioning", "idempotency", "hmac", "signature"], "node_types": {"gotcha": 0, "pattern": 1, "config": 0, "decision": 0, "reference": 0} },
-    "ai-agents":     { "nodes": 2, "fresh_nodes": 2, "top_tags": ["claude", "claude-code", "hooks", "agents", "rag", "embeddings", "llm", "tool-use", "prompt", "context", "permissions", "stop-hook"], "node_types": {"gotcha": 2, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "payments":      { "nodes": 1, "fresh_nodes": 1, "top_tags": ["stripe", "paddle", "billing", "subscription", "webhook", "checkout", "refund", "proration", "signature", "raw-body"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "storage":       { "nodes": 1, "fresh_nodes": 1, "top_tags": ["s3", "r2", "gcs", "upload", "cdn", "blob", "presigned-url", "multipart", "content-type", "aws", "imagekit"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "email":         { "nodes": 1, "fresh_nodes": 1, "top_tags": ["smtp", "sendgrid", "resend", "postmark", "transactional", "deliverability", "dkim", "spf", "dmarc", "plain-text", "spam"], "node_types": {"gotcha": 0, "pattern": 0, "config": 1, "decision": 0, "reference": 0} },
-    "security":      { "nodes": 0, "fresh_nodes": 0, "top_tags": ["cors", "csp", "xss", "csrf", "sqli", "rate-limit", "owasp", "headers", "input-validation", "secrets", "injection"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "performance":   { "nodes": 0, "fresh_nodes": 0, "top_tags": ["caching", "cdn", "bundle-size", "web-vitals", "lazy-loading", "profiling", "lighthouse", "ttfb", "lcp", "cls", "fid"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "observability": { "nodes": 0, "fresh_nodes": 0, "top_tags": ["logging", "metrics", "tracing", "sentry", "datadog", "opentelemetry", "alerting", "dashboards", "structured-logs", "spans"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "mobile":        { "nodes": 0, "fresh_nodes": 0, "top_tags": ["react-native", "expo", "ios", "android", "push-notifications", "deep-links", "offline", "fastlane", "ota", "app-store"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "infrastructure":{ "nodes": 0, "fresh_nodes": 0, "top_tags": ["terraform", "pulumi", "aws", "gcp", "azure", "iam", "networking", "secrets-manager", "vpc", "cdn", "load-balancer"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "tooling":       { "nodes": 0, "fresh_nodes": 0, "top_tags": ["typescript", "eslint", "prettier", "webpack", "vite", "esbuild", "tsconfig", "monorepo", "turborepo", "nx", "pnpm"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
-    "data":          { "nodes": 0, "fresh_nodes": 0, "top_tags": ["etl", "kafka", "queues", "pipelines", "analytics", "clickhouse", "bigquery", "dbt", "airflow", "flink", "postgres"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} }
+    "performance": {
+      "nodes": 0,
+      "fresh_nodes": 0,
+      "top_tags": [],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "database": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "prisma",
+        "postgres",
+        "serverless",
+        "vercel",
+        "lambda",
+        "connections"
+      ],
+      "node_types": {
+        "gotcha": 1,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "storage": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "s3",
+        "presigned-url",
+        "upload",
+        "content-type",
+        "aws",
+        "cors"
+      ],
+      "node_types": {
+        "gotcha": 1,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "api-design": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "webhook",
+        "idempotency",
+        "signature",
+        "stripe",
+        "hmac",
+        "deduplication"
+      ],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 1,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "payments": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "stripe",
+        "webhook",
+        "signature",
+        "express",
+        "body-parser",
+        "raw-body"
+      ],
+      "node_types": {
+        "gotcha": 1,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "tooling": {
+      "nodes": 0,
+      "fresh_nodes": 0,
+      "top_tags": [],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "auth": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "jwt",
+        "auth",
+        "refresh-token",
+        "session",
+        "security",
+        "oauth"
+      ],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 1,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "email": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "resend",
+        "react-email",
+        "email",
+        "spam",
+        "plain-text",
+        "deliverability"
+      ],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 1,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "deployment": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "docker",
+        "secrets",
+        "environment",
+        "build",
+        "security",
+        "layers"
+      ],
+      "node_types": {
+        "gotcha": 1,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "observability": {
+      "nodes": 0,
+      "fresh_nodes": 0,
+      "top_tags": [],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "frontend": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "nextjs",
+        "react",
+        "hydration",
+        "ssr",
+        "date",
+        "browser"
+      ],
+      "node_types": {
+        "gotcha": 1,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "testing": {
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "vitest",
+        "mock",
+        "vi.mock",
+        "hoisting",
+        "jest",
+        "module"
+      ],
+      "node_types": {
+        "gotcha": 1,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "security": {
+      "nodes": 0,
+      "fresh_nodes": 0,
+      "top_tags": [],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "mobile": {
+      "nodes": 0,
+      "fresh_nodes": 0,
+      "top_tags": [],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "infrastructure": {
+      "nodes": 0,
+      "fresh_nodes": 0,
+      "top_tags": [],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "ai-agents": {
+      "nodes": 2,
+      "fresh_nodes": 2,
+      "top_tags": [
+        "claude-code",
+        "hooks",
+        "stop-hook",
+        "background",
+        "agents",
+        "permissions"
+      ],
+      "node_types": {
+        "gotcha": 2,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    },
+    "data": {
+      "nodes": 0,
+      "fresh_nodes": 0,
+      "top_tags": [],
+      "node_types": {
+        "gotcha": 0,
+        "pattern": 0,
+        "config": 0,
+        "decision": 0,
+        "reference": 0
+      }
+    }
   },
   "hot_nodes": [
-    "ai-agents/claude-code-hooks-bypass-permissions"
+    "ai-agents/claude-code-hooks-bypass-permissions",
+    "database/prisma-serverless-connection-exhaustion",
+    "storage/s3-presigned-url-content-type",
+    "api-design/webhook-idempotency-key",
+    "payments/stripe-webhook-signature-raw-body"
   ],
   "total_nodes": 11,
   "total_uses_30d": 1,

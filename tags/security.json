@@ -1,0 +1,18 @@
+{
+  "tag": "security",
+  "node_count": 2,
+  "nodes": [
+    {
+      "id": "auth/jwt-expiry-short-lived-access",
+      "domain": "auth",
+      "type": "pattern",
+      "score": 50
+    },
+    {
+      "id": "deployment/docker-env-not-in-image",
+      "domain": "deployment",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

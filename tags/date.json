@@ -1,0 +1,12 @@
+{
+  "tag": "date",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "frontend/nextjs-hydration-mismatch",
+      "domain": "frontend",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

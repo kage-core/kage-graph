@@ -1,0 +1,12 @@
+{
+  "tag": "aws",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "storage/s3-presigned-url-content-type",
+      "domain": "storage",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

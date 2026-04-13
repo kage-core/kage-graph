@@ -1,37 +1,50 @@
 {
   "domain": "ai-agents",
-  "updated": "2026-04-13T00:00:00Z",
+  "updated": "2026-04-13T10:38:09Z",
   "node_count": 2,
+  "fresh_node_count": 2,
   "nodes": [
     {
       "id": "claude-code-hooks-bypass-permissions",
       "type": "gotcha",
       "title": "Claude Code hooks must use --permission-mode bypassPermissions for sub-agents",
-      "tags": ["claude-code", "hooks", "agents", "permissions", "stop-hook", "background"],
-      "stack": ["claude-code@>=1.0"],
       "severity": "hard-error",
       "score": 90,
       "uses": 1,
+      "tags": [
+        "claude-code",
+        "hooks",
+        "agents",
+        "permissions",
+        "stop-hook",
+        "background"
+      ],
       "added": "2026-04-12",
       "updated": "2026-04-12",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Hooks run without a TTY — any permission prompt hangs indefinitely. Always pass --permission-mode bypassPermissions when invoking sub-agents from Stop/PreToolUse/PostToolUse hooks. Also pass --no-session-persistence to prevent recursive Stop hook firing."
+      "summary": "Hook fires, claude --agent process launches, then hangs indefinitely. The Stop hook times out (default 15s), Claude Code session appears to freeze on exit. Background distiller log shows no output or is empty."
     },
     {
       "id": "claude-code-no-session-persistence",
       "type": "gotcha",
       "title": "Claude Code background agents must pass --no-session-persistence to avoid recursive Stop hooks",
-      "tags": ["claude-code", "hooks", "stop-hook", "session", "background", "infinite-loop"],
-      "stack": ["claude-code@>=1.0"],
       "severity": "hard-error",
       "score": 50,
       "uses": 0,
+      "tags": [
+        "claude-code",
+        "hooks",
+        "stop-hook",
+        "session",
+        "background",
+        "infinite-loop"
+      ],
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Omitting --no-session-persistence from a claude subprocess launched in a Stop hook causes the saved session to trigger another Stop hook event — creating an infinite loop of background processes."
+      "summary": "Stop hook fires, launches a background claude --agent process, which completes — then the Stop hook fires again. This repeats indefinitely, spawning new distiller processes on every cycle. Log file grows unbounded."
     }
   ]
 }

@@ -1,22 +1,29 @@
 {
   "domain": "auth",
-  "updated": "2026-04-13T00:00:00Z",
+  "updated": "2026-04-13T10:38:09Z",
   "node_count": 1,
+  "fresh_node_count": 1,
   "nodes": [
     {
       "id": "jwt-expiry-short-lived-access",
       "type": "pattern",
       "title": "Short-lived access tokens + rotating refresh tokens — JWT auth that doesn't require a revocation list",
-      "tags": ["jwt", "auth", "refresh-token", "session", "security", "oauth"],
-      "stack": ["node@>=16"],
       "severity": "warning",
       "score": 50,
       "uses": 0,
+      "tags": [
+        "jwt",
+        "auth",
+        "refresh-token",
+        "session",
+        "security",
+        "oauth"
+      ],
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 365,
-      "summary": "15-min access token (in-memory) + 7-day opaque refresh token (httpOnly cookie). Rotate refresh token on every use — reuse of a rotated token signals theft and invalidates all sessions. No revocation DB needed for normal logouts."
+      "summary": "Long-lived JWTs (> 1 hour) can't be revoked on logout without a server-side revocation list — negating the stateless benefit. Short-lived JWTs (< 15 min) require frequent re-login without a refresh mechanism."
     }
   ]
 }

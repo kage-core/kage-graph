@@ -1,0 +1,18 @@
+{
+  "tag": "stop-hook",
+  "node_count": 2,
+  "nodes": [
+    {
+      "id": "ai-agents/claude-code-hooks-bypass-permissions",
+      "domain": "ai-agents",
+      "type": "gotcha",
+      "score": 90
+    },
+    {
+      "id": "ai-agents/claude-code-no-session-persistence",
+      "domain": "ai-agents",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

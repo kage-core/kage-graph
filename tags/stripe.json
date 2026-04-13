@@ -2,7 +2,17 @@
   "tag": "stripe",
   "node_count": 2,
   "nodes": [
-    { "id": "payments/stripe-webhook-signature-raw-body", "score": 50, "domain": "payments" },
-    { "id": "api-design/webhook-idempotency-key", "score": 50, "domain": "api-design" }
+    {
+      "id": "api-design/webhook-idempotency-key",
+      "domain": "api-design",
+      "type": "pattern",
+      "score": 50
+    },
+    {
+      "id": "payments/stripe-webhook-signature-raw-body",
+      "domain": "payments",
+      "type": "gotcha",
+      "score": 50
+    }
   ]
 }

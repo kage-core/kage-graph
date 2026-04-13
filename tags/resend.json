@@ -1,0 +1,12 @@
+{
+  "tag": "resend",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "email/resend-react-email-plain-text",
+      "domain": "email",
+      "type": "config",
+      "score": 50
+    }
+  ]
+}

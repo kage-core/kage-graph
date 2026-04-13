@@ -1,22 +1,29 @@
 {
   "domain": "payments",
-  "updated": "2026-04-13T00:00:00Z",
+  "updated": "2026-04-13T10:38:09Z",
   "node_count": 1,
+  "fresh_node_count": 1,
   "nodes": [
     {
       "id": "stripe-webhook-signature-raw-body",
       "type": "gotcha",
       "title": "Stripe webhook signature verification fails when body is parsed before verification",
-      "tags": ["stripe", "webhook", "signature", "express", "body-parser", "raw-body"],
-      "stack": ["stripe@>=10", "express@>=4"],
       "severity": "hard-error",
       "score": 50,
       "uses": 0,
+      "tags": [
+        "stripe",
+        "webhook",
+        "signature",
+        "express",
+        "body-parser",
+        "raw-body"
+      ],
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "express.json() parses the body before stripe.webhooks.constructEvent() sees it — HMAC over re-serialized object never matches Stripe's signature. Mount webhook route before global JSON middleware using express.raw({ type: 'application/json' })."
+      "summary": "```"
     }
   ]
 }

@@ -1,22 +1,29 @@
 {
   "domain": "database",
-  "updated": "2026-04-13T00:00:00Z",
+  "updated": "2026-04-13T10:38:09Z",
   "node_count": 1,
+  "fresh_node_count": 1,
   "nodes": [
     {
       "id": "prisma-serverless-connection-exhaustion",
       "type": "gotcha",
       "title": "Prisma exhausts Postgres connections in serverless environments",
-      "tags": ["prisma", "postgres", "serverless", "vercel", "lambda", "connections"],
-      "stack": ["prisma@>=2.0", "postgres@>=12"],
       "severity": "hard-error",
       "score": 50,
       "uses": 0,
+      "tags": [
+        "prisma",
+        "postgres",
+        "serverless",
+        "vercel",
+        "lambda",
+        "connections"
+      ],
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Each serverless function invocation creates a new PrismaClient with its own connection pool. Under load, this exhausts Postgres's connection limit. Fix: singleton PrismaClient + connection_limit=1 in DATABASE_URL, or use PgBouncer/Prisma Accelerate."
+      "summary": "App works locally, fails in production on Vercel / Lambda / Cloudflare Workers with:"
     }
   ]
 }

@@ -1,22 +1,29 @@
 {
   "domain": "storage",
-  "updated": "2026-04-13T00:00:00Z",
+  "updated": "2026-04-13T10:38:09Z",
   "node_count": 1,
+  "fresh_node_count": 1,
   "nodes": [
     {
       "id": "s3-presigned-url-content-type",
       "type": "gotcha",
       "title": "S3 presigned URL uploads fail when client Content-Type doesn't match signed Content-Type",
-      "tags": ["s3", "presigned-url", "upload", "content-type", "aws", "cors"],
-      "stack": ["@aws-sdk/client-s3@>=3", "node@>=16"],
       "severity": "hard-error",
       "score": 50,
       "uses": 0,
+      "tags": [
+        "s3",
+        "presigned-url",
+        "upload",
+        "content-type",
+        "aws",
+        "cors"
+      ],
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Presigned URL HMAC includes Content-Type. If client sends a different Content-Type than was signed, S3 returns 403 SignatureDoesNotMatch. Fix: pass the actual file MIME type to the server when generating the URL, then send identical Content-Type header from client."
+      "summary": "```"
     }
   ]
 }

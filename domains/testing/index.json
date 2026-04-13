@@ -1,22 +1,29 @@
 {
   "domain": "testing",
-  "updated": "2026-04-13T00:00:00Z",
+  "updated": "2026-04-13T10:38:09Z",
   "node_count": 1,
+  "fresh_node_count": 1,
   "nodes": [
     {
       "id": "vitest-mock-module-hoisting",
       "type": "gotcha",
       "title": "Vitest vi.mock() calls are hoisted to top of file — factory closures cannot reference local variables",
-      "tags": ["vitest", "mock", "vi.mock", "hoisting", "jest", "module"],
-      "stack": ["vitest@>=0.30"],
       "severity": "hard-error",
       "score": 50,
       "uses": 0,
+      "tags": [
+        "vitest",
+        "mock",
+        "vi.mock",
+        "hoisting",
+        "jest",
+        "module"
+      ],
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "vi.mock() is hoisted before variable declarations — factory closures see TDZ, returning undefined. Fix: inline vi.fn() in factory, use vi.mocked() on the import, or use vi.hoisted() to declare variables that survive the hoisting transform."
+      "summary": "```"
     }
   ]
 }
