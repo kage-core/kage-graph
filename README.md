@@ -25,10 +25,10 @@ Five types of nodes, each with a strict format:
 The `kage-graph` sub-agent fetches from this repo using raw GitHub CDN URLs:
 
 ```
-https://raw.githubusercontent.com/kage-memory/graph/main/catalog.json
-https://raw.githubusercontent.com/kage-memory/graph/main/domains/{domain}/index.json
-https://raw.githubusercontent.com/kage-memory/graph/main/domains/{domain}/nodes/{slug}.md
-https://raw.githubusercontent.com/kage-memory/graph/main/tags/{tag}.json
+https://raw.githubusercontent.com/Kage18/kage-graph/main/catalog.json
+https://raw.githubusercontent.com/Kage18/kage-graph/main/domains/{domain}/index.json
+https://raw.githubusercontent.com/Kage18/kage-graph/main/domains/{domain}/nodes/{slug}.md
+https://raw.githubusercontent.com/Kage18/kage-graph/main/tags/{tag}.json
 ```
 
 **Retrieval protocol** (max 6 HTTP calls per query):
