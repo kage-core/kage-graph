@@ -1,17 +1,22 @@
 {
   "domain": "ai-agents",
-  "updated": "2026-04-12T00:00:00Z",
+  "updated": "2026-04-13T00:00:00Z",
+  "node_count": 1,
   "nodes": [
     {
       "id": "claude-code-hooks-bypass-permissions",
+      "type": "gotcha",
       "title": "Claude Code hooks must use --permission-mode bypassPermissions for sub-agents",
       "tags": ["claude-code", "hooks", "agents", "permissions", "stop-hook", "background"],
+      "stack": ["claude-code@>=1.0"],
+      "severity": "hard-error",
       "score": 90,
       "uses": 1,
       "added": "2026-04-12",
       "updated": "2026-04-12",
       "fresh": true,
-      "summary": "Hooks run without a TTY — any permission prompt hangs indefinitely. Always pass --permission-mode bypassPermissions when invoking sub-agents from Stop/PreToolUse/PostToolUse hooks."
+      "ttl_days": 730,
+      "summary": "Hooks run without a TTY — any permission prompt hangs indefinitely. Always pass --permission-mode bypassPermissions when invoking sub-agents from Stop/PreToolUse/PostToolUse hooks. Also pass --no-session-persistence to prevent recursive Stop hook firing."
     }
   ]
 }

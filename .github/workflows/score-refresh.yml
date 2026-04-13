@@ -1,0 +1,178 @@
+name: Score Refresh
+
+on:
+  schedule:
+    # Runs nightly at 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_all:
+        description: 'Recompute scores for all nodes (not just stale ones)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    name: Recompute scores + mark stale nodes
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Recompute scores and staleness
+        run: |
+          python3 - << 'PYEOF'
+          import json, os, glob, math, re
+          from datetime import date, datetime
+
+          today = date.today()
+          changes = []
+
+          def compute_score(up, down, uses):
+              """Score formula: base 50 + vote component (max 30) + use component (max 20)"""
+              vote = (up / (up + down + 1)) * 30
+              use = min(math.log10(uses + 1) / math.log10(1000) * 20, 20)
+              return round(50 + vote + use)
+
+          def parse_frontmatter(content):
+              """Extract frontmatter as dict of key->raw_value strings."""
+              if not content.startswith("---"):
+                  return {}
+              end = content.find("---", 3)
+              if end == -1:
+                  return {}
+              fm_text = content[3:end]
+              result = {}
+              for line in fm_text.split("\n"):
+                  if ":" in line and not line.startswith(" ") and not line.startswith("-"):
+                      k, _, v = line.partition(":")
+                      result[k.strip()] = v.strip().strip('"')
+              return result
+
+          def update_field(content, field, new_value):
+              """Replace a frontmatter scalar field's value."""
+              # Handle both quoted and unquoted values
+              pattern = re.compile(rf'^({field}:\s*)(.+)$', re.MULTILINE)
+              replacement = rf'\g<1>{new_value}'
+              new_content, n = pattern.subn(replacement, content, count=1)
+              if n == 0:
+                  # Field doesn't exist — insert after the --- opening
+                  new_content = content.replace("---\n", f"---\n{field}: {new_value}\n", 1)
+              return new_content
+
+          for node_file in glob.glob("domains/*/nodes/*.md"):
+              content = open(node_file).read()
+              fm = parse_frontmatter(content)
+
+              if not fm:
+                  continue
+
+              updated_content = content
+              node_changed = False
+              slug = os.path.basename(node_file).replace(".md", "")
+              domain = node_file.split("/")[1]
+
+              # Skip superseded nodes — score stays 0
+              superseded_by = fm.get("superseded_by", "null").strip()
+              if superseded_by and superseded_by != "null" and superseded_by != "":
+                  current_score = int(fm.get("score", "0"))
+                  if current_score != 0:
+                      updated_content = update_field(updated_content, "score", "0")
+                      node_changed = True
+                      changes.append(f"  {domain}/{slug}: superseded → score set to 0")
+                  continue
+
+              # Parse vote and use counts
+              try:
+                  votes_up = int(fm.get("votes", "{up: 0").split("up:")[1].split(",")[0].strip().strip("}"))
+              except:
+                  votes_up = 0
+              try:
+                  votes_down = int(fm.get("votes", "down: 0").split("down:")[1].strip().strip("}"))
+              except:
+                  votes_down = 0
+              uses = int(fm.get("uses", "0"))
+
+              new_score = compute_score(votes_up, votes_down, uses)
+
+              # Apply staleness penalty if fresh just expired
+              fresh = fm.get("fresh", "true").lower() == "true"
+              ttl_days = int(fm.get("ttl_days", "365"))
+              updated_str = fm.get("updated", "")
+
+              if updated_str:
+                  try:
+                      updated_date = datetime.strptime(updated_str, "%Y-%m-%d").date()
+                      days_old = (today - updated_date).days
+                      if days_old > ttl_days and fresh:
+                          # Mark as stale + apply penalty
+                          new_score = round(new_score * 0.85)
+                          updated_content = update_field(updated_content, "fresh", "false")
+                          node_changed = True
+                          changes.append(f"  {domain}/{slug}: marked stale (age {days_old}d > ttl {ttl_days}d), score → {new_score}")
+                  except ValueError:
+                      pass
+
+              # Update score if changed
+              current_score = int(fm.get("score", "50"))
+              if abs(current_score - new_score) >= 1:
+                  updated_content = update_field(updated_content, "score", str(new_score))
+                  node_changed = True
+                  if f"{domain}/{slug}" not in [c.split(":")[0].strip() for c in changes]:
+                      changes.append(f"  {domain}/{slug}: score {current_score} → {new_score}")
+
+              if node_changed:
+                  with open(node_file, "w") as f:
+                      f.write(updated_content)
+
+          # Write scores.json signal file
+          os.makedirs("signals", exist_ok=True)
+          scores = {}
+          for node_file in glob.glob("domains/*/nodes/*.md"):
+              content = open(node_file).read()
+              fm = parse_frontmatter(content)
+              if not fm:
+                  continue
+              slug = os.path.basename(node_file).replace(".md", "")
+              domain = node_file.split("/")[1]
+              scores[f"{domain}/{slug}"] = {
+                  "score": int(fm.get("score", "50")),
+                  "uses": int(fm.get("uses", "0")),
+                  "fresh": fm.get("fresh", "true").lower() == "true"
+              }
+
+          with open("signals/scores.json", "w") as f:
+              json.dump({
+                  "generated": today.isoformat(),
+                  "scores": scores
+              }, f, indent=2)
+
+          if changes:
+              print(f"Updated {len(changes)} nodes:")
+              for c in changes:
+                  print(c)
+          else:
+              print("No score changes.")
+          PYEOF
+
+      - name: Commit score updates
+        run: |
+          git config user.name "kage-bot"
+          git config user.email "bot@kage-memory.dev"
+
+          git add domains/*/nodes/*.md signals/scores.json
+
+          if git diff --cached --quiet; then
+            echo "No score changes to commit."
+          else
+            CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
+            git commit -m "chore: nightly score refresh — ${CHANGED} node(s) updated [skip ci]
+
+          Scores recomputed from votes + uses. Stale nodes marked fresh=false."
+            git push
+          fi

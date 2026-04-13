@@ -1,0 +1,320 @@
+name: Rebuild Indexes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'domains/**/nodes/*.md'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    name: Atomic index rebuild + catalog update
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Rebuild domain indexes
+        run: |
+          set -e
+
+          for DOMAIN_DIR in domains/*/; do
+            DOMAIN=$(basename "$DOMAIN_DIR")
+            NODES_DIR="${DOMAIN_DIR}nodes"
+
+            if [ ! -d "$NODES_DIR" ]; then
+              continue
+            fi
+
+            NODE_COUNT=$(ls "$NODES_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
+            if [ "$NODE_COUNT" -eq 0 ]; then
+              continue
+            fi
+
+            echo "Rebuilding index for domain: $DOMAIN ($NODE_COUNT nodes)"
+
+            # Build node entries array
+            NODES_JSON="["
+            FIRST=true
+            FRESH_COUNT=0
+            TODAY=$(date -u +%Y-%m-%d)
+
+            for NODE_FILE in "$NODES_DIR"/*.md; do
+              SLUG=$(basename "$NODE_FILE" .md)
+
+              # Parse frontmatter fields
+              ID=$(grep -m1 '^id:' "$NODE_FILE" | sed 's/id: *"\?//' | sed 's/"\?$//' | tr -d ' ')
+              TYPE=$(grep -m1 '^type:' "$NODE_FILE" | sed 's/type: *"\?//' | sed 's/"\?$//' | tr -d ' ')
+              TITLE=$(grep -m1 '^title:' "$NODE_FILE" | sed 's/title: *"\?//' | sed 's/"\?$//' | sed 's/^ *//')
+              SEVERITY=$(grep -m1 '^severity:' "$NODE_FILE" | sed 's/severity: *"\?//' | sed 's/"\?$//' | tr -d ' ')
+              SCORE=$(grep -m1 '^score:' "$NODE_FILE" | sed 's/score: *//' | tr -d ' ')
+              USES=$(grep -m1 '^uses:' "$NODE_FILE" | sed 's/uses: *//' | tr -d ' ')
+              ADDED=$(grep -m1 '^added:' "$NODE_FILE" | sed 's/added: *"\?//' | sed 's/"\?$//' | tr -d ' ')
+              UPDATED=$(grep -m1 '^updated:' "$NODE_FILE" | sed 's/updated: *"\?//' | sed 's/"\?$//' | tr -d ' ')
+              FRESH=$(grep -m1 '^fresh:' "$NODE_FILE" | sed 's/fresh: *//' | tr -d ' ')
+              TTL=$(grep -m1 '^ttl_days:' "$NODE_FILE" | sed 's/ttl_days: *//' | tr -d ' ')
+
+              # Check if fresh is still valid based on TTL
+              if [ "$FRESH" = "true" ] && [ -n "$TTL" ] && [ -n "$UPDATED" ]; then
+                UPDATED_EPOCH=$(date -d "$UPDATED" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$UPDATED" +%s 2>/dev/null)
+                TODAY_EPOCH=$(date -u +%s)
+                DAYS_OLD=$(( (TODAY_EPOCH - UPDATED_EPOCH) / 86400 ))
+                if [ "$DAYS_OLD" -gt "$TTL" ]; then
+                  FRESH="false"
+                fi
+              fi
+
+              [ "$FRESH" = "true" ] && FRESH_COUNT=$((FRESH_COUNT+1))
+
+              # Parse tags array
+              TAGS=$(awk '/^tags:/{found=1; next} found && /^\]/{found=0} found{print}' "$NODE_FILE" \
+                | tr -d ' "' | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
+
+              # Extract summary from node body (first paragraph after ## Symptom or ## Problem)
+              SUMMARY=$(awk '/^## (Symptom|Problem|Decision|When to Use)/{found=1; next} found && /^##/{found=0} found && /[a-zA-Z]/{print; exit}' "$NODE_FILE" | sed 's/^ *//')
+
+              [ "$FIRST" = "true" ] && FIRST=false || NODES_JSON="${NODES_JSON},"
+
+              NODES_JSON="${NODES_JSON}
+            {
+              \"id\": \"${SLUG}\",
+              \"type\": \"${TYPE}\",
+              \"title\": \"${TITLE}\",
+              \"severity\": \"${SEVERITY}\",
+              \"score\": ${SCORE:-50},
+              \"uses\": ${USES:-0},
+              \"tags\": [$(echo "$TAGS" | sed 's/,/\",\"/g' | sed 's/^/\"/' | sed 's/$/\"/')],
+              \"added\": \"${ADDED}\",
+              \"updated\": \"${UPDATED}\",
+              \"fresh\": ${FRESH:-true},
+              \"ttl_days\": ${TTL:-365},
+              \"summary\": \"$(echo "$SUMMARY" | sed 's/"/\\"/g')\"
+            }"
+            done
+
+            NODES_JSON="${NODES_JSON}
+          ]"
+
+            # Write domain index.json
+            cat > "${DOMAIN_DIR}index.json" << EOF
+          {
+            "domain": "${DOMAIN}",
+            "updated": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "node_count": ${NODE_COUNT},
+            "fresh_node_count": ${FRESH_COUNT},
+            "nodes": ${NODES_JSON}
+          }
+          EOF
+
+            echo "  Written: ${DOMAIN_DIR}index.json"
+          done
+
+      - name: Rebuild catalog.json
+        run: |
+          set -e
+          TODAY=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          TOTAL_NODES=0
+          DOMAINS_JSON=""
+
+          for DOMAIN_DIR in domains/*/; do
+            DOMAIN=$(basename "$DOMAIN_DIR")
+            INDEX="${DOMAIN_DIR}index.json"
+
+            if [ ! -f "$INDEX" ]; then
+              NODE_COUNT=0
+              FRESH_COUNT=0
+            else
+              NODE_COUNT=$(python3 -c "import json,sys; d=json.load(open('$INDEX')); print(d.get('node_count',0))")
+              FRESH_COUNT=$(python3 -c "import json,sys; d=json.load(open('$INDEX')); print(d.get('fresh_node_count',0))")
+            fi
+
+            TOTAL_NODES=$((TOTAL_NODES + NODE_COUNT))
+
+            DOMAINS_JSON="${DOMAINS_JSON}    \"${DOMAIN}\": { \"nodes\": ${NODE_COUNT}, \"fresh_nodes\": ${FRESH_COUNT} },
+          "
+          done
+
+          # Collect hot_nodes: top 5 by score across all domains
+          HOT_NODES=$(python3 - << 'PYEOF'
+          import json, os, glob
+
+          all_nodes = []
+          for index_path in glob.glob("domains/*/index.json"):
+              try:
+                  with open(index_path) as f:
+                      data = json.load(f)
+                  domain = data.get("domain", "")
+                  for node in data.get("nodes", []):
+                      all_nodes.append({
+                          "id": f"{domain}/{node['id']}",
+                          "score": node.get("score", 0),
+                          "uses": node.get("uses", 0)
+                      })
+              except:
+                  pass
+
+          all_nodes.sort(key=lambda n: (n["score"], n["uses"]), reverse=True)
+          top5 = [n["id"] for n in all_nodes[:5]]
+          print(json.dumps(top5))
+          PYEOF
+          )
+
+          python3 - << PYEOF
+          import json, os
+
+          # Read existing catalog for fields we don't recompute
+          try:
+              with open("catalog.json") as f:
+                  existing = json.load(f)
+          except:
+              existing = {}
+
+          # Build domains block
+          domains = {}
+          for d in os.listdir("domains"):
+              idx_path = f"domains/{d}/index.json"
+              if not os.path.isfile(idx_path):
+                  continue
+              with open(idx_path) as f:
+                  data = json.load(f)
+              node_count = data.get("node_count", 0)
+              fresh_count = data.get("fresh_node_count", 0)
+              # Collect type breakdown and top tags
+              type_counts = {}
+              tags_freq = {}
+              for node in data.get("nodes", []):
+                  t = node.get("type", "unknown")
+                  type_counts[t] = type_counts.get(t, 0) + 1
+                  for tag in node.get("tags", []):
+                      tags_freq[tag] = tags_freq.get(tag, 0) + 1
+              top_tags = sorted(tags_freq, key=lambda x: -tags_freq[x])[:6]
+              domains[d] = {
+                  "nodes": node_count,
+                  "fresh_nodes": fresh_count,
+                  "top_tags": top_tags,
+                  "node_types": {t: type_counts.get(t, 0) for t in ["gotcha","pattern","config","decision","reference"]}
+              }
+
+          # Hot nodes: top 5 by score
+          all_nodes = []
+          for d, data_d in domains.items():
+              idx_path = f"domains/{d}/index.json"
+              if not os.path.isfile(idx_path): continue
+              with open(idx_path) as f:
+                  idx = json.load(f)
+              for node in idx.get("nodes", []):
+                  all_nodes.append({"id": f"{d}/{node['id']}", "score": node.get("score",0)})
+          all_nodes.sort(key=lambda x: -x["score"])
+          hot_nodes = [n["id"] for n in all_nodes[:5]]
+
+          total = sum(d["nodes"] for d in domains.values())
+
+          catalog = {
+              "version": "1.0.0",
+              "schema_version": "2.0",
+              "updated": "${TODAY}",
+              "domains": domains,
+              "hot_nodes": hot_nodes,
+              "total_nodes": total,
+              "total_uses_30d": existing.get("total_uses_30d", 0),
+              "contributors": existing.get("contributors", 1)
+          }
+
+          with open("catalog.json", "w") as f:
+              json.dump(catalog, f, indent=2)
+
+          print(f"catalog.json updated: {total} total nodes across {len(domains)} domains")
+          PYEOF
+
+      - name: Rebuild tag indexes
+        run: |
+          set -e
+          mkdir -p tags
+
+          python3 - << 'PYEOF'
+          import json, os, glob
+
+          tag_map = {}  # tag -> list of {id, domain, score}
+
+          for node_file in glob.glob("domains/*/nodes/*.md"):
+              parts = node_file.split("/")
+              domain = parts[1]
+              slug = parts[3].replace(".md", "")
+              node_id = f"{domain}/{slug}"
+
+              # Parse frontmatter
+              content = open(node_file).read()
+              fm_end = content.find("---", 3)
+              if fm_end == -1:
+                  continue
+              fm = content[3:fm_end]
+
+              score = 50
+              tags = []
+              node_type = ""
+              in_tags = False
+
+              for line in fm.split("\n"):
+                  line = line.strip()
+                  if line.startswith("score:"):
+                      try:
+                          score = int(line.split(":")[1].strip())
+                      except:
+                          pass
+                  if line.startswith("type:"):
+                      node_type = line.split(":")[1].strip().strip('"')
+                  if line.startswith("tags:"):
+                      if "[" in line:
+                          tags = [t.strip().strip('"').strip("'") for t in line.split("[")[1].rstrip("]").split(",") if t.strip()]
+                          in_tags = False
+                      else:
+                          in_tags = True
+                  elif in_tags:
+                      if line.startswith("-"):
+                          tags.append(line.lstrip("- ").strip('"').strip("'"))
+                      elif line.startswith("]") or (line and not line.startswith(" ") and not line.startswith("-")):
+                          in_tags = False
+
+              for tag in tags:
+                  if tag not in tag_map:
+                      tag_map[tag] = []
+                  tag_map[tag].append({
+                      "id": node_id,
+                      "domain": domain,
+                      "type": node_type,
+                      "score": score
+                  })
+
+          for tag, nodes in tag_map.items():
+              nodes.sort(key=lambda x: -x["score"])
+              tag_file = f"tags/{tag}.json"
+              with open(tag_file, "w") as f:
+                  json.dump({
+                      "tag": tag,
+                      "node_count": len(nodes),
+                      "nodes": nodes
+                  }, f, indent=2)
+
+          print(f"Rebuilt {len(tag_map)} tag index files")
+          PYEOF
+
+      - name: Commit updated indexes
+        run: |
+          git config user.name "kage-bot"
+          git config user.email "bot@kage-memory.dev"
+
+          git add domains/*/index.json catalog.json tags/*.json signals/ 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "No index changes to commit."
+          else
+            git commit -m "chore: rebuild indexes [skip ci]
+
+          Auto-generated by rebuild-indexes workflow on push to main."
+            git push
+          fi

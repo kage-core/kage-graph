@@ -1,9 +1,105 @@
 {
-  "schema_version": "1.0",
-  "node_required": ["id", "title", "domain", "tags", "added", "updated", "fresh"],
-  "node_recommended": ["stack", "score", "uses", "ttl_days", "related"],
-  "domains": ["auth", "database", "deployment", "frontend", "testing", "api-design", "ai-agents", "payments", "storage", "email"],
-  "rel_types": ["requires", "complements", "alternative", "supersedes"],
-  "score_range": [0, 100],
-  "default_ttl_days": 365
+  "schema_version": "2.0",
+  "node_types": {
+    "gotcha": {
+      "description": "One atomic failure mode. Symptom + Cause + Fix. Scannable in 3 seconds. Max 150 tokens body.",
+      "required": ["id", "type", "title", "domain", "tags", "stack", "severity", "added", "updated", "fresh"],
+      "recommended": ["ttl_days", "related", "votes"],
+      "specific_fields": {
+        "severity": { "enum": ["silent-failure", "hard-error", "data-corruption"] }
+      },
+      "body_sections": ["Symptom", "Cause", "Fix", "Never Do", "Scope"],
+      "max_body_tokens": 200
+    },
+    "pattern": {
+      "description": "A multi-step implementation blueprint for a recurring structure. Includes working code.",
+      "required": ["id", "type", "title", "domain", "tags", "stack", "pattern_type", "added", "updated", "fresh"],
+      "recommended": ["ttl_days", "related", "votes"],
+      "specific_fields": {
+        "pattern_type": { "enum": ["integration", "auth-flow", "data-pipeline", "error-handling", "caching", "deployment"] }
+      },
+      "body_sections": ["When to Use", "Required Setup", "Implementation", "Critical Gotchas", "Verification"],
+      "max_body_tokens": 500
+    },
+    "config": {
+      "description": "Version-locked configuration that must be exactly right. Dockerfile, nginx.conf, tsconfig, etc.",
+      "required": ["id", "type", "title", "domain", "tags", "stack", "config_target", "added", "updated", "fresh"],
+      "recommended": ["ttl_days", "related", "votes"],
+      "specific_fields": {
+        "config_target": { "enum": ["Dockerfile", "nginx.conf", ".env", "tsconfig", "vite.config", "github-actions", "package.json", "next.config", "other"] }
+      },
+      "body_sections": ["Requires", "Config", "What Breaks Without This"],
+      "max_body_tokens": 300
+    },
+    "decision": {
+      "description": "An architectural trade-off frozen at a point in time. X over Y and why.",
+      "required": ["id", "type", "title", "domain", "tags", "stack", "decision_type", "decided_as_of", "added", "updated", "fresh"],
+      "recommended": ["ttl_days", "related", "votes"],
+      "specific_fields": {
+        "decision_type": { "enum": ["library-choice", "architecture", "hosting", "data-model", "api-style", "infrastructure"] }
+      },
+      "body_sections": ["Decision", "Why", "When the Other Choice is Fine", "Migration Cost", "Revise This Decision When"],
+      "max_body_tokens": 400
+    },
+    "reference": {
+      "description": "Dense lookup table. API shapes, error codes, event types, CLI flags. No narrative.",
+      "required": ["id", "type", "title", "domain", "tags", "stack", "reference_type", "added", "updated", "fresh"],
+      "recommended": ["ttl_days", "related", "votes"],
+      "specific_fields": {
+        "reference_type": { "enum": ["event-catalog", "error-codes", "api-shape", "cli-flags", "env-vars", "status-codes"] }
+      },
+      "body_sections": ["table-or-list"],
+      "max_body_tokens": 400
+    }
+  },
+  "edge_types": {
+    "requires": {
+      "direction": "A → B",
+      "semantics": "B must be understood before A is actionable. Agent auto-fetches B when fetching A.",
+      "agent_behavior": "auto-fetch"
+    },
+    "complements": {
+      "direction": "A ↔ B",
+      "semantics": "B adds useful context but is not mandatory.",
+      "agent_behavior": "cite-only"
+    },
+    "alternative": {
+      "direction": "A ↔ B",
+      "semantics": "B solves the same problem differently. Mutually exclusive.",
+      "agent_behavior": "cite-with-description"
+    },
+    "supersedes": {
+      "direction": "A → B",
+      "semantics": "A is current; B is outdated. B gets superseded_by set automatically on merge.",
+      "agent_behavior": "redirect-to-A"
+    },
+    "specializes": {
+      "direction": "A → B",
+      "semantics": "A is a specific-version or specific-context variant of general pattern B.",
+      "agent_behavior": "cite-general"
+    },
+    "conflicts_with": {
+      "direction": "A ↔ B",
+      "semantics": "A and B cannot both be applied. Using both causes breakage.",
+      "agent_behavior": "warn-conflict"
+    }
+  },
+  "score_formula": {
+    "base": 50,
+    "vote_component": "( up / (up + down + 1) ) * 30",
+    "use_component": "min( log10(uses + 1) / log10(1000) * 20, 20 )",
+    "staleness_penalty": "score * 0.85 (applied once when fresh becomes false)",
+    "superseded_penalty": "score set to 0",
+    "max_score": 100
+  },
+  "id_format": "{domain}/{slug}",
+  "slug_format": "kebab-case, lowercase, no special chars except hyphens",
+  "stack_format": "lib@>=semver OR lib@^semver OR lib@X.Y",
+  "ttl_defaults": {
+    "gotcha": 730,
+    "pattern": 365,
+    "config": 180,
+    "decision": 180,
+    "reference": 365
+  }
 }

@@ -1,0 +1,209 @@
+name: Validate Submission
+
+on:
+  pull_request:
+    paths:
+      - 'domains/**/nodes/*.md'
+      - 'submissions/*.md'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Schema validation + conflict detection
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed node files
+        id: changed
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '^domains/.+/nodes/.+\.md$' | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "Changed node files: $FILES"
+
+      - name: Validate frontmatter schema
+        if: steps.changed.outputs.files != ''
+        run: |
+          set -e
+          ERRORS=0
+
+          for FILE in ${{ steps.changed.outputs.files }}; do
+            echo "--- Validating: $FILE"
+
+            # Extract type field
+            TYPE=$(grep -m1 '^type:' "$FILE" | sed 's/type: *"//' | sed 's/"//' | tr -d ' ')
+            if [ -z "$TYPE" ]; then
+              echo "  ERROR: missing 'type' field"
+              ERRORS=$((ERRORS+1))
+              continue
+            fi
+
+            # Required fields for all types
+            REQUIRED_ALL="id title domain tags stack added updated fresh"
+            for FIELD in $REQUIRED_ALL; do
+              if ! grep -qE "^${FIELD}:" "$FILE"; then
+                echo "  ERROR: missing required field '$FIELD'"
+                ERRORS=$((ERRORS+1))
+              fi
+            done
+
+            # Type-specific required fields
+            case "$TYPE" in
+              gotcha)
+                if ! grep -qE '^severity:' "$FILE"; then
+                  echo "  ERROR [gotcha]: missing 'severity' field"
+                  ERRORS=$((ERRORS+1))
+                fi
+                VALID_SEVERITIES="silent-failure hard-error data-corruption"
+                SEV=$(grep -m1 '^severity:' "$FILE" | sed 's/severity: *"//' | sed 's/"//' | tr -d ' ')
+                if ! echo "$VALID_SEVERITIES" | grep -qw "$SEV"; then
+                  echo "  ERROR [gotcha]: invalid severity '$SEV' (must be: $VALID_SEVERITIES)"
+                  ERRORS=$((ERRORS+1))
+                fi
+                ;;
+              pattern)
+                if ! grep -qE '^pattern_type:' "$FILE"; then
+                  echo "  ERROR [pattern]: missing 'pattern_type' field"
+                  ERRORS=$((ERRORS+1))
+                fi
+                ;;
+              config)
+                if ! grep -qE '^config_target:' "$FILE"; then
+                  echo "  ERROR [config]: missing 'config_target' field"
+                  ERRORS=$((ERRORS+1))
+                fi
+                ;;
+              decision)
+                if ! grep -qE '^decision_type:' "$FILE"; then
+                  echo "  ERROR [decision]: missing 'decision_type' field"
+                  ERRORS=$((ERRORS+1))
+                fi
+                if ! grep -qE '^decided_as_of:' "$FILE"; then
+                  echo "  ERROR [decision]: missing 'decided_as_of' field"
+                  ERRORS=$((ERRORS+1))
+                fi
+                ;;
+              reference)
+                if ! grep -qE '^reference_type:' "$FILE"; then
+                  echo "  ERROR [reference]: missing 'reference_type' field"
+                  ERRORS=$((ERRORS+1))
+                fi
+                ;;
+              *)
+                echo "  ERROR: unknown type '$TYPE' (must be: gotcha pattern config decision reference)"
+                ERRORS=$((ERRORS+1))
+                ;;
+            esac
+
+            # ID matches file path convention
+            FILE_SLUG=$(basename "$FILE" .md)
+            FILE_DOMAIN=$(echo "$FILE" | cut -d'/' -f2)
+            EXPECTED_ID="${FILE_DOMAIN}/${FILE_SLUG}"
+            NODE_ID=$(grep -m1 '^id:' "$FILE" | sed 's/id: *"//' | sed 's/"//' | tr -d ' ')
+            if [ "$NODE_ID" != "$EXPECTED_ID" ]; then
+              echo "  ERROR: id '$NODE_ID' does not match expected '$EXPECTED_ID'"
+              ERRORS=$((ERRORS+1))
+            fi
+
+            # Check superseded_by chain — warn if node supersedes something that doesn't exist
+            SUPERSEDES=$(grep -m1 '^supersedes:' "$FILE" | sed 's/supersedes: *//' | tr -d '"' | tr -d ' ')
+            if [ -n "$SUPERSEDES" ] && [ "$SUPERSEDES" != "null" ]; then
+              TARGET_PATH="domains/$(echo "$SUPERSEDES" | tr '/' '/').md"
+              # Construct path: domains/{domain}/nodes/{slug}.md
+              DOMAIN_PART=$(echo "$SUPERSEDES" | cut -d'/' -f1)
+              SLUG_PART=$(echo "$SUPERSEDES" | cut -d'/' -f2)
+              TARGET_PATH="domains/${DOMAIN_PART}/nodes/${SLUG_PART}.md"
+              if [ ! -f "$TARGET_PATH" ]; then
+                echo "  WARNING: supersedes '$SUPERSEDES' but '$TARGET_PATH' not found"
+              fi
+            fi
+
+            echo "  OK: $TYPE node, all required fields present"
+          done
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo ""
+            echo "Validation failed with $ERRORS error(s). Fix the issues above."
+            exit 1
+          fi
+
+          echo ""
+          echo "All nodes passed validation."
+
+      - name: Conflict detection
+        if: steps.changed.outputs.files != ''
+        run: |
+          set -e
+          CONFLICTS=0
+
+          for FILE in ${{ steps.changed.outputs.files }}; do
+            NODE_ID=$(grep -m1 '^id:' "$FILE" | sed 's/id: *"//' | sed 's/"//' | tr -d ' ')
+
+            # Find conflicts_with edges in this node
+            # YAML related array: look for rel: "conflicts_with"
+            IN_RELATED=false
+            CURRENT_ID=""
+            while IFS= read -r LINE; do
+              if echo "$LINE" | grep -qE '^\s+- id:'; then
+                CURRENT_ID=$(echo "$LINE" | sed 's/.*id: *//' | tr -d '"' | tr -d ' ')
+              fi
+              if echo "$LINE" | grep -qE '^\s+rel:.*conflicts_with'; then
+                if [ -n "$CURRENT_ID" ]; then
+                  # Check if the conflicting node also declares conflict back
+                  DOMAIN_PART=$(echo "$CURRENT_ID" | cut -d'/' -f1)
+                  SLUG_PART=$(echo "$CURRENT_ID" | cut -d'/' -f2)
+                  OTHER_PATH="domains/${DOMAIN_PART}/nodes/${SLUG_PART}.md"
+                  if [ -f "$OTHER_PATH" ]; then
+                    if grep -q "$NODE_ID" "$OTHER_PATH" && grep -q "conflicts_with" "$OTHER_PATH"; then
+                      echo "  CONFLICT confirmed (bidirectional): $NODE_ID ↔ $CURRENT_ID"
+                    else
+                      echo "  WARNING: $NODE_ID declares conflict with $CURRENT_ID but $OTHER_PATH does not declare it back"
+                      echo "  Consider adding a conflicts_with edge in $OTHER_PATH pointing to $NODE_ID"
+                      CONFLICTS=$((CONFLICTS+1))
+                    fi
+                  else
+                    echo "  NOTE: $NODE_ID conflicts with $CURRENT_ID but that node doesn't exist yet (OK for new additions)"
+                  fi
+                fi
+              fi
+            done < "$FILE"
+          done
+
+          if [ "$CONFLICTS" -gt 0 ]; then
+            echo ""
+            echo "$CONFLICTS unidirectional conflict edge(s) found. Conflicts must be declared on both sides."
+            exit 1
+          fi
+
+      - name: Check domain index updated
+        if: steps.changed.outputs.files != ''
+        run: |
+          WARNINGS=0
+          for FILE in ${{ steps.changed.outputs.files }}; do
+            FILE_DOMAIN=$(echo "$FILE" | cut -d'/' -f2)
+            INDEX_PATH="domains/${FILE_DOMAIN}/index.json"
+            FILE_SLUG=$(basename "$FILE" .md)
+
+            if [ ! -f "$INDEX_PATH" ]; then
+              echo "  WARNING: $INDEX_PATH does not exist — domain index must be created"
+              WARNINGS=$((WARNINGS+1))
+            elif ! grep -q "\"$FILE_SLUG\"" "$INDEX_PATH"; then
+              echo "  WARNING: $FILE_SLUG not found in $INDEX_PATH — domain index must be updated"
+              echo "  The rebuild-indexes workflow will handle this on merge."
+              WARNINGS=$((WARNINGS+1))
+            else
+              echo "  OK: $FILE_SLUG present in $INDEX_PATH"
+            fi
+          done
+
+      - name: Post summary
+        if: always()
+        run: |
+          echo "## Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Files checked: ${{ steps.changed.outputs.files }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See step logs for per-field validation results." >> $GITHUB_STEP_SUMMARY

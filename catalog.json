@@ -1,22 +1,23 @@
 {
   "version": "1.0.0",
-  "updated": "2026-04-12T00:00:00Z",
-  "schema_version": "1.0",
+  "schema_version": "2.0",
+  "updated": "2026-04-13T00:00:00Z",
   "domains": {
-    "auth":       { "nodes": 0, "top_tags": ["oauth", "jwt", "session", "supabase", "nextjs", "sso"] },
-    "database":   { "nodes": 0, "top_tags": ["postgres", "mysql", "prisma", "drizzle", "migrations", "redis"] },
-    "deployment": { "nodes": 0, "top_tags": ["docker", "vercel", "cloudflare", "fly", "github-actions", "nginx"] },
-    "frontend":   { "nodes": 0, "top_tags": ["react", "nextjs", "vue", "svelte", "tailwind", "ssr"] },
-    "testing":    { "nodes": 0, "top_tags": ["jest", "vitest", "playwright", "cypress", "mocking"] },
-    "api-design": { "nodes": 0, "top_tags": ["rest", "graphql", "trpc", "webhook", "rate-limit", "openapi"] },
-    "ai-agents":  { "nodes": 1, "top_tags": ["claude", "claude-code", "hooks", "agents", "memory", "kage"] },
-    "payments":   { "nodes": 0, "top_tags": ["stripe", "paddle", "billing", "subscription", "webhook"] },
-    "storage":    { "nodes": 0, "top_tags": ["s3", "r2", "gcs", "upload", "cdn", "blob"] },
-    "email":      { "nodes": 0, "top_tags": ["smtp", "sendgrid", "resend", "transactional"] }
+    "auth":       { "nodes": 0, "fresh_nodes": 0, "top_tags": ["oauth", "jwt", "session", "supabase", "nextjs", "sso"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "database":   { "nodes": 0, "fresh_nodes": 0, "top_tags": ["postgres", "mysql", "prisma", "drizzle", "migrations", "redis"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "deployment": { "nodes": 0, "fresh_nodes": 0, "top_tags": ["docker", "vercel", "cloudflare", "fly", "github-actions", "nginx"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "frontend":   { "nodes": 0, "fresh_nodes": 0, "top_tags": ["react", "nextjs", "vue", "svelte", "tailwind", "ssr"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "testing":    { "nodes": 0, "fresh_nodes": 0, "top_tags": ["jest", "vitest", "playwright", "cypress", "mocking"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "api-design": { "nodes": 0, "fresh_nodes": 0, "top_tags": ["rest", "graphql", "trpc", "webhook", "rate-limit", "openapi"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "ai-agents":  { "nodes": 1, "fresh_nodes": 1, "top_tags": ["claude", "claude-code", "hooks", "agents", "memory", "kage", "permissions"], "node_types": {"gotcha": 1, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "payments":   { "nodes": 0, "fresh_nodes": 0, "top_tags": ["stripe", "paddle", "billing", "subscription", "webhook"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "storage":    { "nodes": 0, "fresh_nodes": 0, "top_tags": ["s3", "r2", "gcs", "upload", "cdn", "blob"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} },
+    "email":      { "nodes": 0, "fresh_nodes": 0, "top_tags": ["smtp", "sendgrid", "resend", "transactional"], "node_types": {"gotcha": 0, "pattern": 0, "config": 0, "decision": 0, "reference": 0} }
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions"
   ],
-  "tag_index_url": "https://raw.githubusercontent.com/kage-memory/graph/main/tags/",
-  "signals_url": "https://raw.githubusercontent.com/kage-memory/graph/main/signals/scores.json"
+  "total_nodes": 1,
+  "total_uses_30d": 1,
+  "contributors": 1
 }
