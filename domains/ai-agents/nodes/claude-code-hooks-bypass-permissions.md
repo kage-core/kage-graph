@@ -18,6 +18,7 @@ superseded_by: null
 related:
   - id: "ai-agents/claude-code-no-session-persistence"
     rel: "requires"
+summary: "Hooks run without a TTY — any permission prompt hangs indefinitely. Always pass --permission-mode bypassPermissions when invoking sub-agents from Stop/PreToolUse/PostToolUse hooks. Also pass --no-session-persistence to prevent recursive Stop hook firing."
 ---
 
 # Claude Code hooks must use --permission-mode bypassPermissions for sub-agents

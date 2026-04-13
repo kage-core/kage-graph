@@ -16,6 +16,7 @@ ttl_days: 365
 supersedes: null
 superseded_by: null
 related: []
+summary: "Skip HMAC signature verification → spoofable endpoint. Skip idempotency check → double-charges/emails on provider retry. Verify with timingSafeEqual on raw body bytes; deduplicate on delivery ID before any side effects; acknowledge 200 fast and process async."
 ---
 
 # Webhook receivers must verify signatures and process events idempotently

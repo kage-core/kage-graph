@@ -16,6 +16,7 @@ ttl_days: 730
 supersedes: null
 superseded_by: null
 related: []
+summary: "Each serverless function invocation creates a new PrismaClient with its own connection pool. Under load, this exhausts Postgres's connection limit. Fix: singleton PrismaClient + connection_limit=1 in DATABASE_URL, or use PgBouncer/Prisma Accelerate."
 ---
 
 # Prisma exhausts Postgres connections in serverless environments

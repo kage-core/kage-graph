@@ -16,6 +16,7 @@ ttl_days: 180
 supersedes: null
 superseded_by: null
 related: []
+summary: "React Email renders HTML only by default. Resend sends HTML-only emails without a text field, which spam filters penalize. Fix: render with { plainText: true } to get the text version and pass both html and text fields to resend.emails.send()."
 ---
 
 # Resend + React Email requires explicit plain-text fallback to avoid spam filters

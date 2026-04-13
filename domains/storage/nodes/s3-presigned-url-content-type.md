@@ -16,6 +16,7 @@ ttl_days: 730
 supersedes: null
 superseded_by: null
 related: []
+summary: "Presigned URL HMAC includes Content-Type. If client sends a different Content-Type than was signed, S3 returns 403 SignatureDoesNotMatch. Fix: pass the actual file MIME type to the server when generating the URL, then send identical Content-Type header from client."
 ---
 
 # S3 presigned URL uploads fail when client Content-Type doesn't match signed Content-Type

@@ -16,6 +16,7 @@ ttl_days: 730
 supersedes: null
 superseded_by: null
 related: []
+summary: "vi.mock() is hoisted before variable declarations — factory closures see TDZ, returning undefined. Fix: inline vi.fn() in factory, use vi.mocked() on the import, or use vi.hoisted() to declare variables that survive the hoisting transform."
 ---
 
 # Vitest vi.mock() calls are hoisted to top of file — factory closures cannot reference local variables

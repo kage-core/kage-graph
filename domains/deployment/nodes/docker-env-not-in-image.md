@@ -16,6 +16,7 @@ ttl_days: 730
 supersedes: null
 superseded_by: null
 related: []
+summary: "Secrets written in a Dockerfile layer survive even if a later RUN removes them — every layer is recoverable via docker history or image export. Use BuildKit --secret mounts, runtime ENV vars, or multi-stage builds where the build stage never ships."
 ---
 
 # Secrets baked into Docker image layers are recoverable even after removal

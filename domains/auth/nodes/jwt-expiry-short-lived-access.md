@@ -16,6 +16,7 @@ ttl_days: 365
 supersedes: null
 superseded_by: null
 related: []
+summary: "15-min access token (in-memory) + 7-day opaque refresh token (httpOnly cookie). Rotate refresh token on every use — reuse of a rotated token signals theft and invalidates all sessions. No revocation DB needed for normal logouts."
 ---
 
 # Short-lived access tokens + rotating refresh tokens — JWT auth that doesn't require a revocation list

@@ -18,6 +18,7 @@ superseded_by: null
 related:
   - id: "ai-agents/claude-code-hooks-bypass-permissions"
     rel: "requires"
+summary: "Omitting --no-session-persistence from a claude subprocess launched in a Stop hook causes the saved session to trigger another Stop hook event — creating an infinite loop of background processes."
 ---
 
 # Claude Code background agents must pass --no-session-persistence to avoid recursive Stop hooks

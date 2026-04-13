@@ -16,6 +16,7 @@ ttl_days: 730
 supersedes: null
 superseded_by: null
 related: []
+summary: "new Date(), Math.random(), window.*, localStorage.* render different values server vs client → Hydration failed error. Fix: useEffect + null initial state to defer browser-only values; dynamic(..., { ssr: false }) for whole components."
 ---
 
 # Next.js hydration mismatch when rendering date/time or browser-only values on server
