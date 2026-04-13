@@ -1,145 +1,83 @@
 # Kage Knowledge Graph
 
-A community-maintained knowledge graph for Claude Code agents. Validated patterns, gotchas, configurations, and architectural decisions across 10 technology domains — served live via GitHub's CDN, no API key required.
+A community-maintained knowledge graph for Claude Code agents. Validated patterns, gotchas, configurations, and architectural decisions across 10 technology domains — served live via GitHub's CDN. No API key, no install, no backend.
 
-This is **Tier 3** of the [Kage memory system](https://github.com/kage-core/Kage). Project and personal memory live in your repos. This graph holds knowledge generic enough to be useful to anyone.
+Part of the [Kage memory system](https://github.com/kage-core/Kage). Project and personal memory live in your repos. This graph holds knowledge generic enough to be useful to any developer, anywhere.
 
 ---
 
-## What Lives Here
+## How It Works
 
-Five types of nodes, each with a strict format:
+Agents fetch nodes directly from GitHub's raw CDN:
 
-| Type | Definition | Example |
+```
+catalog.json          ← domains, hot nodes, total counts
+domains/{domain}/
+  index.json          ← node list: scores, types, summaries
+  nodes/{slug}.md     ← full knowledge node
+tags/{tag}.json       ← inverted index for multi-domain queries
+```
+
+Every file is a plain HTTP GET. GitHub's CDN serves it globally with no auth and no rate limits for reasonable usage. Nothing to deploy, nothing to maintain.
+
+---
+
+## Retrieval Protocol
+
+The `kage-graph` sub-agent navigates the graph in at most **6 HTTP calls**:
+
+```
+Query: "stripe webhook signature fails behind nginx"
+
+Step 0  Hot node cache check                        (0 calls)
+        catalog already fetched this session?
+        keyword overlaps with hot_nodes? → skip to Step 4
+
+Step 1  Classify the task                           (0 calls)
+        "fails" → type: gotcha, severity: hard-error
+        "stripe", "nginx" → domains: payments, deployment
+        tags extracted: ["stripe", "webhook", "nginx"]
+
+Step 2  Fetch catalog.json                          (1 call)
+        payments: 0 nodes → fall through to tag routing
+
+Step 3  Fetch tag files in parallel                 (3 calls)
+        tags/stripe.json + tags/webhook.json + tags/nginx.json
+        intersection → payments/stripe-webhook-nginx (score 87, 3/3 tags)
+
+Step 4  Fetch node                                  (1 call)
+        domains/payments/nodes/stripe-webhook-nginx.md
+        has requires edge → deployment/nginx-proxy-buffering
+
+Step 5  Fetch required dependency                   (1 call)
+        domains/deployment/nodes/nginx-proxy-buffering.md
+
+Step 6  Output
+        [gotcha] Stripe webhook + [config] nginx buffering
+        with conflict warnings and related citations
+```
+
+**Summary pre-selection**: gotcha nodes with `score ≥ 80` can be answered from the index `summary` field alone — no full node fetch needed. Saves 1 call for common lookups.
+
+**Edge resolution**: `requires` edges are auto-fetched within budget. `complements` and `alternative` edges are cited only. `supersedes` silently redirects to the current node.
+
+---
+
+## Node Types
+
+Five types. Each enforces a specific structure so agents can scan them in seconds.
+
+| Type | What it captures | Token limit |
 |---|---|---|
-| `gotcha` | One atomic failure mode: symptom → cause → fix. Max 200 tokens. | "Stripe webhook signature fails behind nginx" |
-| `pattern` | Multi-step implementation blueprint with working code | "Supabase SSR session refresh with Next.js App Router" |
-| `config` | Version-locked configuration that must be exactly right | "Dockerfile for Node 20 with pnpm on Alpine" |
-| `decision` | Architectural trade-off frozen at a point in time | "Drizzle over Prisma for edge runtimes" |
-| `reference` | Dense lookup table: error codes, API shapes, CLI flags | "Stripe webhook event types" |
-
----
-
-## How Agents Use This
-
-The `kage-graph` sub-agent fetches from this repo using raw GitHub CDN URLs:
-
-```
-https://raw.githubusercontent.com/kage-core/kage-graph/main/catalog.json
-https://raw.githubusercontent.com/kage-core/kage-graph/main/domains/{domain}/index.json
-https://raw.githubusercontent.com/kage-core/kage-graph/main/domains/{domain}/nodes/{slug}.md
-https://raw.githubusercontent.com/kage-core/kage-graph/main/tags/{tag}.json
-```
-
-**Retrieval protocol** (max 6 HTTP calls per query):
-
-1. Check hot node cache (no call) — if `catalog.json` was already fetched and a keyword matches a hot node, jump directly to Step 4
-2. Detect task type from symptom language (no call) — maps to gotcha/pattern/config/decision/reference
-3. Fetch `catalog.json` — confirm domains have nodes, check hot_nodes
-4. Route to nodes via domain index (1 call) or tag intersection (up to 3 parallel calls)
-5. Fetch 1–2 node files; auto-follow `requires` edges
-6. Return formatted output with conflict warnings and related citations
-
-**Summary pre-selection**: for gotcha nodes with `score ≥ 80`, the index entry's `summary` field may answer the query directly — no full node fetch needed.
-
-**Zero cost**: pure HTTP GET against GitHub's CDN. No auth, no rate limits for reasonable usage, no infrastructure to maintain.
-
----
-
-## Repository Structure
-
-```
-catalog.json                     ← root: all domains, hot nodes, total counts
-domains/
-└── {domain}/
-    ├── index.json               ← node list with scores, summaries, types
-    └── nodes/
-        └── {slug}.md            ← individual knowledge node
-tags/
-└── {tag}.json                   ← inverted index: tag → list of node IDs + scores
-signals/
-└── scores.json                  ← precomputed scores (nightly refresh)
-meta/
-├── schema.json                  ← field definitions, edge types, score formula
-└── templates/
-    ├── gotcha.md
-    ├── pattern.md
-    ├── config.md
-    ├── decision.md
-    └── reference.md
-submissions/
-└── template.md                  ← contributor guide
-.github/workflows/
-├── validate-submission.yml      ← runs on PR: schema + conflict detection
-├── rebuild-indexes.yml          ← runs on merge: atomic index rebuild
-└── score-refresh.yml            ← nightly: recompute scores, mark stale nodes
-```
-
----
-
-## Domains
-
-| Domain | Keywords |
-|---|---|
-| `auth` | oauth, jwt, login, session, token, sso, saml, supabase-auth |
-| `database` | postgres, mysql, sqlite, prisma, drizzle, migration, orm, redis |
-| `deployment` | docker, vercel, cloudflare, fly, github-actions, nginx, k8s |
-| `frontend` | react, nextjs, vue, svelte, tailwind, ssr, hydration, app-router |
-| `testing` | jest, vitest, playwright, cypress, mock, e2e |
-| `api-design` | rest, graphql, trpc, webhook, rate-limit, openapi |
-| `ai-agents` | claude, claude-code, hooks, agents, rag, embeddings, llm |
-| `payments` | stripe, paddle, billing, subscription, webhook |
-| `storage` | s3, r2, gcs, upload, cdn, blob |
-| `email` | smtp, sendgrid, resend, transactional |
-
----
-
-## Scoring
-
-Every node has a score from 0–100:
-
-```
-base: 50
-+ vote component:    ( up / (up + down + 1) ) × 30      (max 30)
-+ use component:     min( log10(uses+1) / log10(1000) × 20, 20 )  (max 20)
-× staleness penalty: × 0.85 when TTL expires (fresh → false)
-= 0 if superseded
-```
-
-High-score nodes appear in `hot_nodes` in catalog.json and are prioritized in retrieval.
-
----
-
-## Contributing
-
-**1. Pick a type.** Each node is exactly one of the 5 types. See [submissions/template.md](submissions/template.md) for type-specific templates and the full quality bar.
-
-**2. Create the file:**
-```
-domains/{domain}/nodes/{slug}.md
-```
-
-**3. Open a PR** with title format:
-```
-[gotcha] ai-agents: Claude Code hooks hang without bypassPermissions
-[pattern] auth: Supabase SSR session refresh with Next.js
-[decision] database: Drizzle over Prisma for edge runtimes
-```
-
-**4. CI validates:**
-- All required frontmatter fields present
-- Type-specific fields valid (severity for gotcha, pattern_type for pattern, etc.)
-- `id` field matches file path exactly
-- `conflicts_with` edges declared on both sides
-- On merge: domain indexes and catalog rebuilt automatically
-
-**Quality bar in short:** specific (names exact methods/flags), reproducible (working example), scoped (states which versions), honest (admits when the alternative is fine), atomic (one failure mode or one decision per node).
+| `gotcha` | One failure mode: Symptom → Cause → Fix → Never Do → Scope | 200 |
+| `pattern` | Multi-step implementation blueprint with working code | 500 |
+| `config` | Version-locked configuration that must be exactly right | 300 |
+| `decision` | Architectural trade-off: X over Y, why, when to revise | 400 |
+| `reference` | Dense lookup table: error codes, API shapes, CLI flags | 400 |
 
 ---
 
 ## Node Format
-
-Every node is a markdown file with YAML frontmatter. Example:
 
 ```markdown
 ---
@@ -170,60 +108,131 @@ related:
 Hook fires, claude process launches, then hangs indefinitely.
 
 ## Cause
-Hooks run without a TTY. Claude's permission system waits for stdin input that never arrives.
+Hooks run without a TTY. Claude's permission system waits for stdin that never arrives.
 
 ## Fix
-```bash
 nohup claude --agent kage-distiller --print "$TASK" \
   --permission-mode bypassPermissions \
   --no-session-persistence \
   >> distill.log 2>&1 &
-```
 
 ## Never Do
-```bash
-# Missing --permission-mode → hangs forever
-nohup claude --agent kage-distiller --print "$TASK" >> distill.log 2>&1 &
-```
+# Missing --permission-mode → hangs forever on first tool use
 
 ## Scope
-All Claude Code versions ≥ 1.0. Affects Stop, PreToolUse, PostToolUse, and SessionStart hooks.
+All Claude Code versions ≥ 1.0. Stop, PreToolUse, PostToolUse, SessionStart hooks.
 ```
+
+---
+
+## Scoring
+
+```
+base:               50
++ votes:            ( up / (up + down + 1) ) × 30     max 30
++ uses:             min( log10(uses+1) / log10(1000) × 20, 20 )  max 20
+× staleness:        × 0.85 when TTL expires (fresh → false)
+  superseded:       score = 0
+─────────────────────────────────────────────────────
+max possible:       100
+```
+
+Top 5 nodes by score appear in `catalog.json` as `hot_nodes` — agents check these first before spending fetch calls on domain routing.
+
+---
+
+## Lifecycle
+
+**Adding a node** — open a PR with a new file at `domains/{domain}/nodes/{slug}.md`. CI checks schema and blocks if the slug already exists on main. On merge, indexes rebuild automatically.
+
+**Updating a node** — edit the existing file, bump `updated`, reset `fresh: true`. Same PR flow. Use this for content fixes or when the underlying technology changed.
+
+**Superseding a node** — when the approach fundamentally changes, create a new node and link:
+```yaml
+# new node
+supersedes: "domain/old-slug"
+
+# old node (edit in same PR)
+superseded_by: "domain/new-slug"
+```
+The agent silently redirects from old to new at retrieval time.
+
+**Staleness** — the nightly job marks nodes `fresh: false` when their TTL expires and applies a 0.85× score penalty. Stale nodes surface a warning in agent output, prompting someone to update them.
 
 ---
 
 ## Automation
 
-Three GitHub Actions keep the graph healthy:
+Three GitHub Actions keep everything consistent. Enable them under **Settings → Actions → General → Allow all actions**, and set **Workflow permissions → Read and write**.
 
-**`validate-submission`** — runs on every PR touching `domains/**/nodes/*.md`:
-- Checks all required fields and type-specific fields
-- Validates `id` matches file path
-- Detects unidirectional `conflicts_with` edges (must be declared on both sides)
+**`validate-submission`** — on every PR touching `domains/**/nodes/*.md`:
+- Schema validation: all required fields, type-specific fields, `id` matches file path
+- Slug collision: blocks if the new file's slug already exists on `main`
+- Conflict edges: `conflicts_with` must be declared on both sides
 
-**`rebuild-indexes`** — runs on every merge to main:
-- Rebuilds all `domains/*/index.json` files from node frontmatter
-- Regenerates `catalog.json` with current counts and hot_nodes
+**`rebuild-indexes`** — on every merge to `main`:
+- Rebuilds `domains/*/index.json` from node frontmatter
+- Rebuilds `catalog.json` counts, top_tags, hot_nodes
 - Rebuilds `tags/*.json` inverted indexes
 - Commits as `[skip ci]`
 
-**`score-refresh`** — runs nightly:
-- Recomputes scores from current vote + use counts
-- Marks nodes `fresh: false` when TTL expires, applies 0.85× staleness penalty
+**`score-refresh`** — nightly at 02:00 UTC:
+- Recomputes scores from vote + use counts in every node file
+- Marks `fresh: false` + applies staleness penalty when TTL expires
 - Sets score to 0 for superseded nodes
+- Patches updated scores into `domains/*/index.json` directly (no waiting for next PR merge)
+- Rebuilds `catalog.json` hot_nodes from current scores
 - Writes `signals/scores.json`
+- Commits as `[skip ci]`
 
 ---
 
 ## Edge Types
 
-Nodes can declare relationships in their `related` array:
+```yaml
+related:
+  - id: "domain/slug"
+    rel: "requires"       # auto-fetched when this node is fetched
+  - id: "domain/slug"
+    rel: "complements"    # cited in output, not fetched
+  - id: "domain/slug"
+    rel: "alternative"    # same problem, different approach — cited with description
+  - id: "domain/slug"
+    rel: "supersedes"     # this node is current; that one is outdated
+  - id: "domain/slug"
+    rel: "specializes"    # version-specific variant of a general node
+  - id: "domain/slug"
+    rel: "conflicts_with" # cannot apply both — must be declared on both sides
+```
 
-| Edge | Agent behavior |
+---
+
+## Domains
+
+| Domain | Keywords |
 |---|---|
-| `requires` | Agent auto-fetches the linked node when fetching this one |
-| `complements` | Cited in output only — not fetched |
-| `alternative` | Cited with description — same problem, different approach |
-| `supersedes` | This node is current; the linked node is outdated — agent redirects |
-| `specializes` | Version-specific variant of a general node |
-| `conflicts_with` | Cannot apply both — agent emits warning block. Must be bidirectional. |
+| `auth` | oauth, jwt, login, session, token, sso, saml, supabase-auth |
+| `database` | postgres, mysql, sqlite, prisma, drizzle, migration, orm, redis |
+| `deployment` | docker, vercel, cloudflare, fly, github-actions, nginx, k8s |
+| `frontend` | react, nextjs, vue, svelte, tailwind, ssr, hydration, app-router |
+| `testing` | jest, vitest, playwright, cypress, mock, e2e |
+| `api-design` | rest, graphql, trpc, webhook, rate-limit, openapi |
+| `ai-agents` | claude, claude-code, hooks, agents, rag, embeddings, llm |
+| `payments` | stripe, paddle, billing, subscription, webhook |
+| `storage` | s3, r2, gcs, upload, cdn, blob |
+| `email` | smtp, sendgrid, resend, transactional |
+
+---
+
+## Contributing
+
+See [submissions/template.md](submissions/template.md) for type-specific templates and the full quality bar.
+
+**PR title format:**
+```
+[gotcha] ai-agents: Claude Code hooks hang without bypassPermissions
+[pattern] auth: Supabase SSR session refresh with Next.js App Router
+[decision] database: Drizzle over Prisma for edge runtimes
+```
+
+**Quality bar:** specific (exact method names, flags, config keys) — reproducible (working example included) — scoped (which versions) — honest (admits when the alternative is fine) — atomic (one failure mode or one decision per node).
