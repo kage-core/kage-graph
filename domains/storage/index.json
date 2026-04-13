@@ -1,6 +1,6 @@
 {
   "domain": "storage",
-  "updated": "2026-04-13T10:42:02Z",
+  "updated": "2026-04-13T10:50:43Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,11 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "```"
+      "summary": "```",
+      "stack": [
+        "@aws-sdk/client-s3@>=3",
+        "node@>=16"
+      ]
     }
   ]
 }

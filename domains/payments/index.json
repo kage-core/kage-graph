@@ -1,6 +1,6 @@
 {
   "domain": "payments",
-  "updated": "2026-04-13T10:42:02Z",
+  "updated": "2026-04-13T10:50:43Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,11 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "stripe.webhooks.constructEvent() throws even though the Stripe-Signature header is present and the webhook secret is correct. Works with curl but fails in Express:"
+      "summary": "express.json() parses the body before stripe.webhooks.constructEvent() sees it — HMAC over re-serialized object never matches Stripe's signature. Mount webhook route before global JSON middleware using express.raw({ type: 'application/json' }).",
+      "stack": [
+        "stripe@>=10",
+        "express@>=4"
+      ]
     }
   ]
 }

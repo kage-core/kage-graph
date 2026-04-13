@@ -1,6 +1,6 @@
 {
   "domain": "ai-agents",
-  "updated": "2026-04-13T10:42:02Z",
+  "updated": "2026-04-13T10:50:43Z",
   "node_count": 2,
   "fresh_node_count": 2,
   "nodes": [
@@ -23,7 +23,10 @@
       "updated": "2026-04-12",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Hook fires, claude --agent process launches, then hangs indefinitely. The Stop hook times out (default 15s), Claude Code session appears to freeze on exit. Background distiller log shows no output or is empty."
+      "summary": "Hook fires, claude --agent process launches, then hangs indefinitely. The Stop hook times out (default 15s), Claude Code session appears to freeze on exit. Background distiller log shows no output or is empty.",
+      "stack": [
+        "claude-code@>=1.0"
+      ]
     },
     {
       "id": "claude-code-no-session-persistence",
@@ -44,7 +47,10 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Stop hook fires, launches a background claude --agent process, which completes — then the Stop hook fires again. This repeats indefinitely, spawning new distiller processes on every cycle. Log file grows unbounded."
+      "summary": "Stop hook fires, launches a background claude --agent process, which completes — then the Stop hook fires again. This repeats indefinitely, spawning new distiller processes on every cycle. Log file grows unbounded.",
+      "stack": [
+        "claude-code@>=1.0"
+      ]
     }
   ]
 }

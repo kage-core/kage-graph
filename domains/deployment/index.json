@@ -1,6 +1,6 @@
 {
   "domain": "deployment",
-  "updated": "2026-04-13T10:42:02Z",
+  "updated": "2026-04-13T10:50:43Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,10 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "CI builds pass secrets via ARG/ENV or COPY of .env file. A later RUN rm .env appears to clean it up. But the secret is still present in intermediate layers and recoverable via docker history, docker save | tar, or image analysis tools."
+      "summary": "CI builds pass secrets via ARG/ENV or COPY of .env file. A later RUN rm .env appears to clean it up. But the secret is still present in intermediate layers and recoverable via docker history, docker save | tar, or image analysis tools.",
+      "stack": [
+        "docker@>=20"
+      ]
     }
   ]
 }

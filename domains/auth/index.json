@@ -1,6 +1,6 @@
 {
   "domain": "auth",
-  "updated": "2026-04-13T10:42:02Z",
+  "updated": "2026-04-13T10:50:43Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,10 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 365,
-      "summary": "Long-lived JWTs (> 1 hour) can't be revoked on logout without a server-side revocation list — negating the stateless benefit. Short-lived JWTs (< 15 min) require frequent re-login without a refresh mechanism."
+      "summary": "Long-lived JWTs (> 1 hour) can't be revoked on logout without a server-side revocation list — negating the stateless benefit. Short-lived JWTs (< 15 min) require frequent re-login without a refresh mechanism.",
+      "stack": [
+        "node@>=16"
+      ]
     }
   ]
 }

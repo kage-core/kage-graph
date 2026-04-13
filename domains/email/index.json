@@ -1,6 +1,6 @@
 {
   "domain": "email",
-  "updated": "2026-04-13T10:42:02Z",
+  "updated": "2026-04-13T10:50:43Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,11 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 180,
-      "summary": "Transactional emails land in spam. Deliverability score tools (mail-tester.com) report missing text/plain alternative part. Some corporate mail servers silently discard HTML-only emails."
+      "summary": "Transactional emails land in spam. Deliverability score tools (mail-tester.com) report missing text/plain alternative part. Some corporate mail servers silently discard HTML-only emails.",
+      "stack": [
+        "resend@>=1.0",
+        "@react-email/components@>=0.0.14"
+      ]
     }
   ]
 }
