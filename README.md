@@ -200,18 +200,27 @@ related:
 
 ## Domains
 
-| Domain | Keywords |
+Tags on nodes are **free-form** — use whatever terms describe the specific technology or pattern. The tags below are common ones that have accumulated in each domain and are used by the retrieval agent to classify queries. They are not a whitelist.
+
+| Domain | Common tags |
 |---|---|
-| `auth` | oauth, jwt, login, session, token, sso, saml, supabase-auth |
-| `database` | postgres, mysql, sqlite, prisma, drizzle, migration, orm, redis |
-| `deployment` | docker, vercel, cloudflare, fly, github-actions, nginx, k8s |
-| `frontend` | react, nextjs, vue, svelte, tailwind, ssr, hydration, app-router |
-| `testing` | jest, vitest, playwright, cypress, mock, e2e |
-| `api-design` | rest, graphql, trpc, webhook, rate-limit, openapi |
-| `ai-agents` | claude, claude-code, hooks, agents, rag, embeddings, llm |
-| `payments` | stripe, paddle, billing, subscription, webhook |
-| `storage` | s3, r2, gcs, upload, cdn, blob |
-| `email` | smtp, sendgrid, resend, transactional |
+| `auth` | oauth, jwt, login, session, token, sso, saml, supabase-auth, passkey, magic-link, rbac |
+| `database` | postgres, mysql, sqlite, prisma, drizzle, migration, orm, redis, mongodb, planetscale, neon |
+| `deployment` | docker, vercel, cloudflare, fly, github-actions, nginx, k8s, railway, render, ecs, helm |
+| `frontend` | react, nextjs, vue, svelte, tailwind, ssr, hydration, app-router, vite, astro, remix |
+| `testing` | jest, vitest, playwright, cypress, mock, e2e, msw, testing-library, snapshot |
+| `api-design` | rest, graphql, trpc, webhook, rate-limit, openapi, pagination, versioning, idempotency |
+| `ai-agents` | claude, claude-code, hooks, agents, rag, embeddings, llm, tool-use, prompt, context |
+| `payments` | stripe, paddle, billing, subscription, webhook, checkout, refund, proration |
+| `storage` | s3, r2, gcs, upload, cdn, blob, presigned-url, multipart, imagekit |
+| `email` | smtp, sendgrid, resend, postmark, transactional, deliverability, dkim, spf, dmarc |
+| `security` | cors, csp, xss, csrf, sqli, rate-limit, owasp, headers, input-validation, secrets |
+| `performance` | caching, cdn, bundle-size, web-vitals, lazy-loading, profiling, lighthouse, ttfb |
+| `observability` | logging, metrics, tracing, sentry, datadog, opentelemetry, alerting, dashboards |
+| `mobile` | react-native, expo, ios, android, push-notifications, deep-links, offline, fastlane |
+| `infrastructure` | terraform, pulumi, aws, gcp, azure, iam, networking, secrets-manager, vpc, cdn |
+| `tooling` | typescript, eslint, prettier, webpack, vite, esbuild, tsconfig, monorepo, turborepo |
+| `data` | etl, kafka, queues, pipelines, analytics, clickhouse, bigquery, dbt, airflow, flink |
 
 ---
 
