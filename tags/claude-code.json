@@ -1,0 +1,7 @@
+{
+  "tag": "claude-code",
+  "node_count": 1,
+  "nodes": [
+    { "id": "ai-agents/claude-code-hooks-bypass-permissions", "score": 90, "domain": "ai-agents" }
+  ]
+}

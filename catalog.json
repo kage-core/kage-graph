@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-04-12T00:00:00Z",
+  "schema_version": "1.0",
+  "domains": {
+    "auth":       { "nodes": 0, "top_tags": ["oauth", "jwt", "session", "supabase", "nextjs", "sso"] },
+    "database":   { "nodes": 0, "top_tags": ["postgres", "mysql", "prisma", "drizzle", "migrations", "redis"] },
+    "deployment": { "nodes": 0, "top_tags": ["docker", "vercel", "cloudflare", "fly", "github-actions", "nginx"] },
+    "frontend":   { "nodes": 0, "top_tags": ["react", "nextjs", "vue", "svelte", "tailwind", "ssr"] },
+    "testing":    { "nodes": 0, "top_tags": ["jest", "vitest", "playwright", "cypress", "mocking"] },
+    "api-design": { "nodes": 0, "top_tags": ["rest", "graphql", "trpc", "webhook", "rate-limit", "openapi"] },
+    "ai-agents":  { "nodes": 1, "top_tags": ["claude", "claude-code", "hooks", "agents", "memory", "kage"] },
+    "payments":   { "nodes": 0, "top_tags": ["stripe", "paddle", "billing", "subscription", "webhook"] },
+    "storage":    { "nodes": 0, "top_tags": ["s3", "r2", "gcs", "upload", "cdn", "blob"] },
+    "email":      { "nodes": 0, "top_tags": ["smtp", "sendgrid", "resend", "transactional"] }
+  },
+  "hot_nodes": [
+    "ai-agents/claude-code-hooks-bypass-permissions"
+  ],
+  "tag_index_url": "https://raw.githubusercontent.com/kage-memory/graph/main/tags/",
+  "signals_url": "https://raw.githubusercontent.com/kage-memory/graph/main/signals/scores.json"
+}

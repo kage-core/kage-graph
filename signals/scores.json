@@ -1,0 +1,10 @@
+{
+  "updated": "2026-04-12T00:00:00Z",
+  "scores": {
+    "ai-agents/claude-code-hooks-bypass-permissions": {
+      "score": 90,
+      "uses": 1,
+      "votes": { "up": 1, "down": 0 }
+    }
+  }
+}
