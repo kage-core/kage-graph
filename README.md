@@ -163,11 +163,21 @@ The agent silently redirects from old to new at retrieval time.
 
 ## Automation
 
-**On every PR** — schema is validated: required fields, type-specific fields, `id` matches file path, slug doesn't already exist on `main`, `conflicts_with` edges declared on both sides. PR is blocked if any check fails.
+The entire contribution pipeline is automated — no human reviewer needed.
 
-**On every merge to `main`** — all domain `index.json` files, `catalog.json`, and `tags/*.json` are rebuilt atomically from the node frontmatter. Agents reading the graph always see a consistent state.
+**On every PR:**
+- Schema validated: required fields, type-specific fields, `id` matches file path, slug doesn't already exist on `main`, `conflicts_with` edges bidirectional
+- Claude bot reviews content: specific enough? atomic? scoped to versions? working example present? no PII?
+- Both pass → PR auto-merges
 
-**Nightly** — scores are recomputed from current vote and use counts. Nodes past their TTL are marked `fresh: false` with a 0.85× score penalty. Superseded nodes drop to 0. Domain indexes and `catalog.json` hot_nodes are patched in place so the live graph reflects current scores without waiting for the next PR merge.
+**On every merge to `main`:**
+- All `domains/*/index.json`, `catalog.json`, and `tags/*.json` rebuilt atomically from node frontmatter
+- Live on GitHub CDN within seconds of merge
+
+**Nightly:**
+- Scores recomputed from votes + uses in every node file
+- Nodes past TTL marked `fresh: false` with 0.85× score penalty
+- Domain indexes and `catalog.json` hot_nodes patched with current scores
 
 ---
 
@@ -210,15 +220,6 @@ related:
 
 ## Contributing
 
-Anyone can submit. Fork the repo, add a node file, open a PR — or run `/kage submit <node-file>` from Claude Code and it handles the fork and PR automatically.
+Run `/kage submit <node-file>` from Claude Code — it prepares the node and opens the PR. Bots handle validation and review automatically. If the node passes, it merges and goes live within minutes.
 
-**PR title format:**
-```
-[gotcha] ai-agents: Claude Code hooks hang without bypassPermissions
-[pattern] auth: Supabase SSR session refresh with Next.js App Router
-[decision] database: Drizzle over Prisma for edge runtimes
-```
-
-Every PR requires **1 approval + CI green** to merge. Maintainers review initially; frequent contributors earn domain reviewer status.
-
-See [submissions/template.md](submissions/template.md) for type-specific templates and [CONTRIBUTING.md](CONTRIBUTING.md) for the full review process.
+See [submissions/template.md](submissions/template.md) for type-specific templates and [CONTRIBUTING.md](CONTRIBUTING.md) for what the review bot checks.

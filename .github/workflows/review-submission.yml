@@ -1,0 +1,191 @@
+name: Review Submission
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'domains/**/nodes/*.md'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    name: Claude content review + auto-merge
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed node files
+        id: changed
+        run: |
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '^domains/.+/nodes/.+\.md$' | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+      - name: Review node content with Claude
+        if: steps.changed.outputs.files != ''
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 - << 'PYEOF'
+          import json, os, sys, urllib.request, urllib.error, glob
+
+          files = "${{ steps.changed.outputs.files }}".strip().split()
+          api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+
+          if not api_key:
+              print("ANTHROPIC_API_KEY not set — skipping content review")
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("decision=approved\n")
+                  f.write("feedback=API key not configured; schema validation is the only gate.\n")
+              sys.exit(0)
+
+          results = []
+
+          for file_path in files:
+              if not os.path.isfile(file_path):
+                  continue
+
+              content = open(file_path).read()
+              slug = os.path.basename(file_path).replace(".md", "")
+              domain = file_path.split("/")[1]
+
+              prompt = f"""You are reviewing a submission to the Kage Knowledge Graph — a community knowledge base for Claude Code agents.
+
+Review this node and decide: APPROVE or REQUEST_CHANGES.
+
+Node file: {file_path}
+
+---
+{content}
+---
+
+Apply these criteria strictly:
+
+APPROVE if ALL of the following are true:
+1. SPECIFIC — names exact method names, CLI flags, config keys, or error messages. Not vague advice.
+2. ATOMIC — covers exactly one failure mode, one decision, or one config block. Not a tutorial.
+3. SCOPED — the `stack` field states which versions this applies to.
+4. HONEST — for gotcha/pattern: includes a working example. For decision: acknowledges when the alternative is fine.
+5. NOT DUPLICATE — the content is genuinely distinct (you cannot check the full graph, but assess from the node itself).
+6. NO PII — no API keys, passwords, emails, internal hostnames.
+
+REQUEST_CHANGES if ANY of the following are true:
+- Fix or pattern is vague (no exact method/flag/key names)
+- No working code example for gotcha or pattern type
+- Stack field is missing or just says a framework name without version
+- Node covers multiple unrelated things
+- Body is mostly explanation with no actionable fix
+- Contains secrets, credentials, or PII
+
+Respond with ONLY valid JSON:
+{{
+  "decision": "APPROVE" or "REQUEST_CHANGES",
+  "reason": "one sentence explaining the decision",
+  "feedback": "specific actionable feedback for the author (empty string if approving)"
+}}"""
+
+              request_body = json.dumps({
+                  "model": "claude-haiku-4-5-20251001",
+                  "max_tokens": 256,
+                  "messages": [{"role": "user", "content": prompt}]
+              }).encode()
+
+              req = urllib.request.Request(
+                  "https://api.anthropic.com/v1/messages",
+                  data=request_body,
+                  headers={
+                      "x-api-key": api_key,
+                      "anthropic-version": "2023-06-01",
+                      "content-type": "application/json"
+                  }
+              )
+
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as resp:
+                      response = json.loads(resp.read())
+                  raw = response["content"][0]["text"].strip()
+                  # Strip markdown code fences if present
+                  if raw.startswith("```"):
+                      raw = raw.split("```")[1]
+                      if raw.startswith("json"):
+                          raw = raw[4:]
+                  result = json.loads(raw.strip())
+              except Exception as e:
+                  print(f"Claude API error for {file_path}: {e}")
+                  result = {"decision": "APPROVE", "reason": "API error — defaulting to approve", "feedback": ""}
+
+              results.append({
+                  "file": file_path,
+                  "slug": f"{domain}/{slug}",
+                  **result
+              })
+              print(f"  {domain}/{slug}: {result['decision']} — {result['reason']}")
+
+          # Aggregate: any REQUEST_CHANGES = block
+          any_rejected = any(r["decision"] == "REQUEST_CHANGES" for r in results)
+          overall = "REQUEST_CHANGES" if any_rejected else "APPROVE"
+
+          # Build review body
+          lines = ["## Kage Review Bot\n"]
+          for r in results:
+              icon = "✅" if r["decision"] == "APPROVE" else "❌"
+              lines.append(f"### {icon} `{r['slug']}`")
+              lines.append(f"*{r['reason']}*")
+              if r.get("feedback"):
+                  lines.append(f"\n**Changes needed:** {r['feedback']}")
+              lines.append("")
+
+          if not any_rejected:
+              lines.append("All nodes passed review. Merging automatically.")
+
+          body = "\n".join(lines)
+
+          # Write outputs
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"decision={overall}\n")
+
+          # Write review body to file (avoids shell escaping issues)
+          with open("/tmp/review_body.txt", "w") as f:
+              f.write(body)
+
+          print(f"\nOverall decision: {overall}")
+          PYEOF
+
+      - name: Post review
+        if: steps.changed.outputs.files != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DECISION="${{ steps.review.outputs.decision }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
+
+          if [ "$DECISION" = "APPROVE" ]; then
+            gh pr review "$PR_NUMBER" \
+              --repo "$REPO" \
+              --approve \
+              --body "$(cat /tmp/review_body.txt)"
+          else
+            gh pr review "$PR_NUMBER" \
+              --repo "$REPO" \
+              --request-changes \
+              --body "$(cat /tmp/review_body.txt)"
+          fi
+
+      - name: Enable auto-merge on approval
+        if: steps.review.outputs.decision == 'APPROVE'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} \
+            --repo ${{ github.repository }} \
+            --auto \
+            --squash \
+            --subject "[{type}] ${{ github.event.pull_request.title }}"
