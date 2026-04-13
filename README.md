@@ -1,6 +1,6 @@
 # Kage Knowledge Graph
 
-A community-maintained knowledge graph for Claude Code agents. Validated patterns, gotchas, configurations, and architectural decisions across 10 technology domains — served live via GitHub's CDN. No API key, no install, no backend.
+A community-maintained knowledge graph for Claude Code agents. Validated patterns, gotchas, configurations, and architectural decisions across 17 technology domains — served live via GitHub's CDN. No API key, no install, no backend.
 
 Part of the [Kage memory system](https://github.com/kage-core/Kage). Project and personal memory live in your repos. This graph holds knowledge generic enough to be useful to any developer, anywhere.
 
@@ -27,34 +27,37 @@ Every file is a plain HTTP GET. GitHub's CDN serves it globally with no auth and
 The `kage-graph` sub-agent navigates the graph in at most **6 HTTP calls**:
 
 ```
-Query: "stripe webhook signature fails behind nginx"
+Query: "stripe webhook signature fails in express"
 
 Step 0  Hot node cache check                        (0 calls)
         catalog already fetched this session?
-        keyword overlaps with hot_nodes? → skip to Step 4
+        keyword overlaps with hot_nodes? → no match, continue
 
 Step 1  Classify the task                           (0 calls)
         "fails" → type: gotcha, severity: hard-error
-        "stripe", "nginx" → domains: payments, deployment
-        tags extracted: ["stripe", "webhook", "nginx"]
+        "stripe", "express" → domains: payments, api-design
+        tags extracted: ["stripe", "webhook", "signature"]
 
 Step 2  Fetch catalog.json                          (1 call)
-        payments: 0 nodes → fall through to tag routing
+        payments: 1 node, top_tags includes "stripe", "webhook" → match
+        api-design: 1 node, top_tags includes "webhook", "signature" → match
 
-Step 3  Fetch tag files in parallel                 (3 calls)
-        tags/stripe.json + tags/webhook.json + tags/nginx.json
-        intersection → payments/stripe-webhook-nginx (score 87, 3/3 tags)
+Step 3  Fetch domain indexes in parallel            (2 calls)
+        domains/payments/index.json → stripe-webhook-signature-raw-body (score 50)
+        domains/api-design/index.json → webhook-idempotency-key (score 50)
+        best match: payments/stripe-webhook-signature-raw-body (3/3 tags)
 
 Step 4  Fetch node                                  (1 call)
-        domains/payments/nodes/stripe-webhook-nginx.md
-        has requires edge → deployment/nginx-proxy-buffering
+        domains/payments/nodes/stripe-webhook-signature-raw-body.md
+        no requires edges
 
-Step 5  Fetch required dependency                   (1 call)
-        domains/deployment/nodes/nginx-proxy-buffering.md
+Step 5  (budget remaining — fetch related)          (1 call)
+        domains/api-design/nodes/webhook-idempotency-key.md
+        (complements: HMAC verify + idempotency pattern)
 
 Step 6  Output
-        [gotcha] Stripe webhook + [config] nginx buffering
-        with conflict warnings and related citations
+        [gotcha] Stripe raw body + [pattern] webhook idempotency
+        with scope notes and Never Do examples
 ```
 
 **Summary pre-selection**: gotcha nodes with `score ≥ 80` can be answered from the index `summary` field alone — no full node fetch needed. Saves 1 call for common lookups.

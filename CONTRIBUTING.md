@@ -37,9 +37,9 @@ Manually: fork the repo, create `domains/{domain}/nodes/{slug}.md`, open a PR wi
 
 ---
 
-## What the Review Bot Checks
+## What Maintainers Check
 
-The Claude-powered review bot approves automatically if all of these are true:
+A maintainer reviews every PR. CI must be green first. Maintainers look for:
 
 | Check | What it means |
 |---|---|
@@ -50,7 +50,7 @@ The Claude-powered review bot approves automatically if all of these are true:
 | **Honest** | For decision: acknowledges when the alternative is fine |
 | **No PII** | No API keys, passwords, emails, internal hostnames |
 
-If any check fails, the bot leaves specific feedback on the PR. Fix the issues, push a new commit — the bot re-reviews automatically.
+If anything needs fixing, the maintainer will leave a comment. Push a new commit and the CI re-runs automatically.
 
 ---
 

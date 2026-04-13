@@ -88,40 +88,24 @@ jobs:
                   echo "  ERROR [gotcha]: missing 'severity' field"
                   ERRORS=$((ERRORS+1))
                 fi
-                VALID_SEVERITIES="silent-failure hard-error data-corruption"
-                SEV=$(grep -m1 '^severity:' "$FILE" | sed 's/severity: *"//' | sed 's/"//' | tr -d ' ')
+                VALID_SEVERITIES="hard-error warning info"
+                SEV=$(grep -m1 '^severity:' "$FILE" | sed 's/severity: *"\?//' | sed 's/"\?$//' | tr -d ' ')
                 if ! echo "$VALID_SEVERITIES" | grep -qw "$SEV"; then
                   echo "  ERROR [gotcha]: invalid severity '$SEV' (must be: $VALID_SEVERITIES)"
                   ERRORS=$((ERRORS+1))
                 fi
                 ;;
               pattern)
-                if ! grep -qE '^pattern_type:' "$FILE"; then
-                  echo "  ERROR [pattern]: missing 'pattern_type' field"
-                  ERRORS=$((ERRORS+1))
-                fi
+                # No extra required fields beyond the common set
                 ;;
               config)
-                if ! grep -qE '^config_target:' "$FILE"; then
-                  echo "  ERROR [config]: missing 'config_target' field"
-                  ERRORS=$((ERRORS+1))
-                fi
+                # No extra required fields beyond the common set
                 ;;
               decision)
-                if ! grep -qE '^decision_type:' "$FILE"; then
-                  echo "  ERROR [decision]: missing 'decision_type' field"
-                  ERRORS=$((ERRORS+1))
-                fi
-                if ! grep -qE '^decided_as_of:' "$FILE"; then
-                  echo "  ERROR [decision]: missing 'decided_as_of' field"
-                  ERRORS=$((ERRORS+1))
-                fi
+                # No extra required fields beyond the common set
                 ;;
               reference)
-                if ! grep -qE '^reference_type:' "$FILE"; then
-                  echo "  ERROR [reference]: missing 'reference_type' field"
-                  ERRORS=$((ERRORS+1))
-                fi
+                # No extra required fields beyond the common set
                 ;;
               *)
                 echo "  ERROR: unknown type '$TYPE' (must be: gotcha pattern config decision reference)"

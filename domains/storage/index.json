@@ -15,7 +15,7 @@
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
-      "ttl_days": 365,
+      "ttl_days": 730,
       "summary": "Presigned URL HMAC includes Content-Type. If client sends a different Content-Type than was signed, S3 returns 403 SignatureDoesNotMatch. Fix: pass the actual file MIME type to the server when generating the URL, then send identical Content-Type header from client."
     }
   ]

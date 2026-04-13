@@ -15,7 +15,7 @@
       "added": "2026-04-13",
       "updated": "2026-04-13",
       "fresh": true,
-      "ttl_days": 365,
+      "ttl_days": 730,
       "summary": "new Date(), Math.random(), window.*, localStorage.* render different values server vs client → Hydration failed error. Fix: useEffect + null initial state to defer browser-only values; dynamic(..., { ssr: false }) for whole components."
     }
   ]

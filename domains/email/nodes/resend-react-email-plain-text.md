@@ -12,7 +12,7 @@ votes: {up: 0, down: 0}
 added: "2026-04-13"
 updated: "2026-04-13"
 fresh: true
-ttl_days: 365
+ttl_days: 180
 supersedes: null
 superseded_by: null
 related: []

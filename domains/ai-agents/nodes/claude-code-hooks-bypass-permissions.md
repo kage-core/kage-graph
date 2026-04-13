@@ -16,7 +16,7 @@ ttl_days: 730
 supersedes: null
 superseded_by: null
 related:
-  - id: "ai-agents/no-session-persistence-background-agents"
+  - id: "ai-agents/claude-code-no-session-persistence"
     rel: "requires"
 ---
 

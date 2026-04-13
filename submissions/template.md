@@ -264,7 +264,7 @@ related:
 domains/{domain}/nodes/{slug}.md
 ```
 
-- `domain`: one of `auth`, `database`, `deployment`, `frontend`, `testing`, `api-design`, `ai-agents`, `payments`, `storage`, `email`
+- `domain`: one of `auth`, `database`, `deployment`, `frontend`, `testing`, `api-design`, `ai-agents`, `payments`, `storage`, `email`, `security`, `performance`, `observability`, `mobile`, `infrastructure`, `tooling`, `data`
 - `slug`: kebab-case, lowercase, no special chars except hyphens. Max 60 chars.
 - `id` field must equal `{domain}/{slug}` exactly — CI validates this.
 
