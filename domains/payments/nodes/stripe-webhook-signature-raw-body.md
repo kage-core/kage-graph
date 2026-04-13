@@ -21,10 +21,10 @@ related: []
 # Stripe webhook signature verification fails when body is parsed before verification
 
 ## Symptom
+`stripe.webhooks.constructEvent()` throws even though the `Stripe-Signature` header is present and the webhook secret is correct. Works with curl but fails in Express:
 ```
 StripeSignatureVerificationError: No signatures found matching the expected signature for payload.
 ```
-`stripe.webhooks.constructEvent()` throws even though the `Stripe-Signature` header is present and the webhook secret is correct. Works with curl but fails in Express.
 
 ## Cause
 `stripe.webhooks.constructEvent()` requires the **raw request body bytes** to compute the HMAC. If any body-parser middleware runs first (`express.json()`, `bodyParser.json()`), the body is parsed into a JS object — the raw bytes are gone. The signature computed from the re-serialized object never matches Stripe's signature.
