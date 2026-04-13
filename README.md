@@ -163,27 +163,11 @@ The agent silently redirects from old to new at retrieval time.
 
 ## Automation
 
-Three GitHub Actions keep everything consistent. Enable them under **Settings → Actions → General → Allow all actions**, and set **Workflow permissions → Read and write**.
+**On every PR** — schema is validated: required fields, type-specific fields, `id` matches file path, slug doesn't already exist on `main`, `conflicts_with` edges declared on both sides. PR is blocked if any check fails.
 
-**`validate-submission`** — on every PR touching `domains/**/nodes/*.md`:
-- Schema validation: all required fields, type-specific fields, `id` matches file path
-- Slug collision: blocks if the new file's slug already exists on `main`
-- Conflict edges: `conflicts_with` must be declared on both sides
+**On every merge to `main`** — all domain `index.json` files, `catalog.json`, and `tags/*.json` are rebuilt atomically from the node frontmatter. Agents reading the graph always see a consistent state.
 
-**`rebuild-indexes`** — on every merge to `main`:
-- Rebuilds `domains/*/index.json` from node frontmatter
-- Rebuilds `catalog.json` counts, top_tags, hot_nodes
-- Rebuilds `tags/*.json` inverted indexes
-- Commits as `[skip ci]`
-
-**`score-refresh`** — nightly at 02:00 UTC:
-- Recomputes scores from vote + use counts in every node file
-- Marks `fresh: false` + applies staleness penalty when TTL expires
-- Sets score to 0 for superseded nodes
-- Patches updated scores into `domains/*/index.json` directly (no waiting for next PR merge)
-- Rebuilds `catalog.json` hot_nodes from current scores
-- Writes `signals/scores.json`
-- Commits as `[skip ci]`
+**Nightly** — scores are recomputed from current vote and use counts. Nodes past their TTL are marked `fresh: false` with a 0.85× score penalty. Superseded nodes drop to 0. Domain indexes and `catalog.json` hot_nodes are patched in place so the live graph reflects current scores without waiting for the next PR merge.
 
 ---
 
