@@ -21,98 +21,156 @@ jobs:
 
       - name: Rebuild domain indexes
         run: |
-          set -e
+          python3 - << 'PYEOF'
+          import json, os, re, glob
+          from datetime import datetime, timezone
 
-          for DOMAIN_DIR in domains/*/; do
-            DOMAIN=$(basename "$DOMAIN_DIR")
-            NODES_DIR="${DOMAIN_DIR}nodes"
+          today = datetime.now(timezone.utc)
+          today_str = today.strftime('%Y-%m-%dT%H:%M:%SZ')
+          today_date = today.strftime('%Y-%m-%d')
 
-            if [ ! -d "$NODES_DIR" ]; then
-              continue
-            fi
+          SUMMARY_HEADERS = re.compile(r'^## (Symptom|Problem|Decision|When to Use)\s*$')
 
-            NODE_COUNT=$(ls "$NODES_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
-            if [ "$NODE_COUNT" -eq 0 ]; then
-              continue
-            fi
+          def parse_frontmatter(content):
+              """Parse YAML-like frontmatter between --- delimiters."""
+              if not content.startswith('---'):
+                  return {}, content
+              end = content.find('\n---', 3)
+              if end == -1:
+                  return {}, content
+              fm_text = content[3:end]
+              body = content[end+4:]
+              fm = {}
+              in_tags = False
+              tags_list = []
+              for line in fm_text.split('\n'):
+                  if in_tags:
+                      stripped = line.strip()
+                      if stripped.startswith(']'):
+                          in_tags = False
+                          fm['tags'] = tags_list
+                      elif stripped.startswith('-'):
+                          tags_list.append(stripped.lstrip('- ').strip().strip('"\''))
+                      elif '[' not in stripped and stripped:
+                          in_tags = False
+                          fm['tags'] = tags_list
+                      continue
+                  if ':' not in line:
+                      continue
+                  key, _, val = line.partition(':')
+                  key = key.strip()
+                  val = val.strip().strip('"')
+                  if key == 'tags':
+                      if '[' in val and ']' in val:
+                          inner = val.strip('[]')
+                          tags_list = [t.strip().strip('"\'') for t in inner.split(',') if t.strip()]
+                          fm['tags'] = tags_list
+                      elif '[' in val:
+                          in_tags = True
+                          tags_list = []
+                          inner = val.lstrip('[').strip()
+                          if inner and inner != ']':
+                              for t in inner.split(','):
+                                  t = t.strip().strip('"\'')
+                                  if t and not t.startswith(']'):
+                                      tags_list.append(t)
+                  elif key in ('score', 'uses', 'ttl_days'):
+                      try:
+                          fm[key] = int(val)
+                      except ValueError:
+                          fm[key] = val
+                  elif key == 'fresh':
+                      fm[key] = val.lower() == 'true'
+                  else:
+                      fm[key] = val
+              return fm, body
 
-            echo "Rebuilding index for domain: $DOMAIN ($NODE_COUNT nodes)"
+          def extract_summary(body):
+              """Return first non-empty line after a recognised section header."""
+              found = False
+              for line in body.split('\n'):
+                  if SUMMARY_HEADERS.match(line):
+                      found = True
+                      continue
+                  if found:
+                      if line.startswith('## '):
+                          break
+                      stripped = line.strip()
+                      if stripped:
+                          # Strip markdown inline code backticks for cleaner summary
+                          return re.sub(r'`([^`]+)`', r'\1', stripped)
+              return ''
 
-            # Build node entries array
-            NODES_JSON="["
-            FIRST=true
-            FRESH_COUNT=0
-            TODAY=$(date -u +%Y-%m-%d)
+          def is_fresh(fm):
+              fresh = fm.get('fresh', True)
+              if not fresh:
+                  return False
+              updated = fm.get('updated', '')
+              ttl = fm.get('ttl_days', 365)
+              if not updated:
+                  return True
+              try:
+                  updated_dt = datetime.strptime(updated, '%Y-%m-%d').replace(tzinfo=timezone.utc)
+                  days_old = (today - updated_dt).days
+                  return days_old <= ttl
+              except Exception:
+                  return True
 
-            for NODE_FILE in "$NODES_DIR"/*.md; do
-              SLUG=$(basename "$NODE_FILE" .md)
+          for domain_path in sorted(glob.glob('domains/*/')):
+              domain = os.path.basename(domain_path.rstrip('/'))
+              nodes_dir = os.path.join(domain_path, 'nodes')
+              if not os.path.isdir(nodes_dir):
+                  continue
 
-              # Parse frontmatter fields
-              ID=$(grep -m1 '^id:' "$NODE_FILE" | sed 's/id: *"\?//' | sed 's/"\?$//' | tr -d ' ')
-              TYPE=$(grep -m1 '^type:' "$NODE_FILE" | sed 's/type: *"\?//' | sed 's/"\?$//' | tr -d ' ')
-              TITLE=$(grep -m1 '^title:' "$NODE_FILE" | sed 's/title: *"\?//' | sed 's/"\?$//' | sed 's/^ *//')
-              SEVERITY=$(grep -m1 '^severity:' "$NODE_FILE" | sed 's/severity: *"\?//' | sed 's/"\?$//' | tr -d ' ')
-              SCORE=$(grep -m1 '^score:' "$NODE_FILE" | sed 's/score: *//' | tr -d ' ')
-              USES=$(grep -m1 '^uses:' "$NODE_FILE" | sed 's/uses: *//' | tr -d ' ')
-              ADDED=$(grep -m1 '^added:' "$NODE_FILE" | sed 's/added: *"\?//' | sed 's/"\?$//' | tr -d ' ')
-              UPDATED=$(grep -m1 '^updated:' "$NODE_FILE" | sed 's/updated: *"\?//' | sed 's/"\?$//' | tr -d ' ')
-              FRESH=$(grep -m1 '^fresh:' "$NODE_FILE" | sed 's/fresh: *//' | tr -d ' ')
-              TTL=$(grep -m1 '^ttl_days:' "$NODE_FILE" | sed 's/ttl_days: *//' | tr -d ' ')
+              node_files = sorted(glob.glob(os.path.join(nodes_dir, '*.md')))
+              if not node_files:
+                  continue
 
-              # Check if fresh is still valid based on TTL
-              if [ "$FRESH" = "true" ] && [ -n "$TTL" ] && [ -n "$UPDATED" ]; then
-                UPDATED_EPOCH=$(date -d "$UPDATED" +%s 2>/dev/null || date -j -f "%Y-%m-%d" "$UPDATED" +%s 2>/dev/null)
-                TODAY_EPOCH=$(date -u +%s)
-                DAYS_OLD=$(( (TODAY_EPOCH - UPDATED_EPOCH) / 86400 ))
-                if [ "$DAYS_OLD" -gt "$TTL" ]; then
-                  FRESH="false"
-                fi
-              fi
+              print(f'Rebuilding index for domain: {domain} ({len(node_files)} nodes)')
 
-              [ "$FRESH" = "true" ] && FRESH_COUNT=$((FRESH_COUNT+1))
+              nodes = []
+              fresh_count = 0
 
-              # Parse tags array
-              TAGS=$(awk '/^tags:/{found=1; next} found && /^\]/{found=0} found{print}' "$NODE_FILE" \
-                | tr -d ' "' | grep -v '^$' | tr '\n' ',' | sed 's/,$//')
+              for node_file in node_files:
+                  slug = os.path.basename(node_file)[:-3]
+                  content = open(node_file, encoding='utf-8').read()
+                  fm, body = parse_frontmatter(content)
 
-              # Extract summary from node body (first paragraph after ## Symptom or ## Problem)
-              SUMMARY=$(awk '/^## (Symptom|Problem|Decision|When to Use)/{found=1; next} found && /^##/{found=0} found && /[a-zA-Z]/{print; exit}' "$NODE_FILE" | sed 's/^ *//')
+                  node_fresh = is_fresh(fm)
+                  if node_fresh:
+                      fresh_count += 1
 
-              [ "$FIRST" = "true" ] && FIRST=false || NODES_JSON="${NODES_JSON},"
+                  summary = extract_summary(body)
 
-              NODES_JSON="${NODES_JSON}
-            {
-              \"id\": \"${SLUG}\",
-              \"type\": \"${TYPE}\",
-              \"title\": \"${TITLE}\",
-              \"severity\": \"${SEVERITY}\",
-              \"score\": ${SCORE:-50},
-              \"uses\": ${USES:-0},
-              \"tags\": [$(echo "$TAGS" | sed 's/,/\",\"/g' | sed 's/^/\"/' | sed 's/$/\"/')],
-              \"added\": \"${ADDED}\",
-              \"updated\": \"${UPDATED}\",
-              \"fresh\": ${FRESH:-true},
-              \"ttl_days\": ${TTL:-365},
-              \"summary\": \"$(echo "$SUMMARY" | sed 's/"/\\"/g')\"
-            }"
-            done
+                  nodes.append({
+                      'id': slug,
+                      'type': fm.get('type', ''),
+                      'title': fm.get('title', ''),
+                      'severity': fm.get('severity', ''),
+                      'score': fm.get('score', 50),
+                      'uses': fm.get('uses', 0),
+                      'tags': fm.get('tags', []),
+                      'added': fm.get('added', ''),
+                      'updated': fm.get('updated', ''),
+                      'fresh': node_fresh,
+                      'ttl_days': fm.get('ttl_days', 365),
+                      'summary': summary,
+                  })
 
-            NODES_JSON="${NODES_JSON}
-          ]"
+              index = {
+                  'domain': domain,
+                  'updated': today_str,
+                  'node_count': len(nodes),
+                  'fresh_node_count': fresh_count,
+                  'nodes': nodes,
+              }
 
-            # Write domain index.json
-            cat > "${DOMAIN_DIR}index.json" << EOF
-          {
-            "domain": "${DOMAIN}",
-            "updated": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "node_count": ${NODE_COUNT},
-            "fresh_node_count": ${FRESH_COUNT},
-            "nodes": ${NODES_JSON}
-          }
-          EOF
+              out_path = os.path.join(domain_path, 'index.json')
+              with open(out_path, 'w', encoding='utf-8') as f:
+                  json.dump(index, f, indent=2, ensure_ascii=False)
+              print(f'  Written: {out_path}')
 
-            echo "  Written: ${DOMAIN_DIR}index.json"
-          done
+          PYEOF
 
       - name: Rebuild catalog.json
         run: |
