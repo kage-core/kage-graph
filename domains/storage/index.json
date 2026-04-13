@@ -1,6 +1,6 @@
 {
   "domain": "storage",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "```",
+      "summary": "Presigned URL HMAC includes Content-Type. If client sends a different Content-Type than was signed, S3 returns 403 SignatureDoesNotMatch. Fix: pass the actual file MIME type to the server when generating the URL, then send identical Content-Type header from client.",
       "stack": [
         "@aws-sdk/client-s3@>=3",
         "node@>=16"

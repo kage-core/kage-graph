@@ -1,6 +1,6 @@
 {
   "domain": "database",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "App works locally, fails in production on Vercel / Lambda / Cloudflare Workers with:",
+      "summary": "Each serverless function invocation creates a new PrismaClient with its own connection pool. Under load, this exhausts Postgres's connection limit. Fix: singleton PrismaClient + connection_limit=1 in DATABASE_URL, or use PgBouncer/Prisma Accelerate.",
       "stack": [
         "prisma@>=2.0",
         "postgres@>=12"

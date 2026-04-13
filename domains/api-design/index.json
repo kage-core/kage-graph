@@ -1,6 +1,6 @@
 {
   "domain": "api-design",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 365,
-      "summary": "Webhook endpoints that skip signature verification can be spoofed by any attacker who knows the URL. Endpoints that don't track processed events will double-charge customers, send duplicate emails, or over-provision resources when providers retry on network failure.",
+      "summary": "Skip HMAC signature verification → spoofable endpoint. Skip idempotency check → double-charges/emails on provider retry. Verify with timingSafeEqual on raw body bytes; deduplicate on delivery ID before any side effects; acknowledge 200 fast and process async.",
       "stack": [
         "node@>=16",
         "express@>=4"

@@ -1,6 +1,6 @@
 {
   "domain": "deployment",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "CI builds pass secrets via ARG/ENV or COPY of .env file. A later RUN rm .env appears to clean it up. But the secret is still present in intermediate layers and recoverable via docker history, docker save | tar, or image analysis tools.",
+      "summary": "Secrets written in a Dockerfile layer survive even if a later RUN removes them — every layer is recoverable via docker history or image export. Use BuildKit --secret mounts, runtime ENV vars, or multi-stage builds where the build stage never ships.",
       "stack": [
         "docker@>=20"
       ]

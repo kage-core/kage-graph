@@ -1,6 +1,6 @@
 {
   "domain": "email",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 180,
-      "summary": "Transactional emails land in spam. Deliverability score tools (mail-tester.com) report missing text/plain alternative part. Some corporate mail servers silently discard HTML-only emails.",
+      "summary": "React Email renders HTML only by default. Resend sends HTML-only emails without a text field, which spam filters penalize. Fix: render with { plainText: true } to get the text version and pass both html and text fields to resend.emails.send().",
       "stack": [
         "resend@>=1.0",
         "@react-email/components@>=0.0.14"

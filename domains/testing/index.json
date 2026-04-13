@@ -1,6 +1,6 @@
 {
   "domain": "testing",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -23,7 +23,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "```",
+      "summary": "vi.mock() is hoisted before variable declarations — factory closures see TDZ, returning undefined. Fix: inline vi.fn() in factory, use vi.mocked() on the import, or use vi.hoisted() to declare variables that survive the hoisting transform.",
       "stack": [
         "vitest@>=0.30"
       ]

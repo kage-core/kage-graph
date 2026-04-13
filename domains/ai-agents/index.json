@@ -1,6 +1,6 @@
 {
   "domain": "ai-agents",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 2,
   "fresh_node_count": 2,
   "nodes": [
@@ -23,7 +23,7 @@
       "updated": "2026-04-12",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Hook fires, claude --agent process launches, then hangs indefinitely. The Stop hook times out (default 15s), Claude Code session appears to freeze on exit. Background distiller log shows no output or is empty.",
+      "summary": "Hooks run without a TTY — any permission prompt hangs indefinitely. Always pass --permission-mode bypassPermissions when invoking sub-agents from Stop/PreToolUse/PostToolUse hooks. Also pass --no-session-persistence to prevent recursive Stop hook firing.",
       "stack": [
         "claude-code@>=1.0"
       ]
@@ -47,7 +47,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Stop hook fires, launches a background claude --agent process, which completes — then the Stop hook fires again. This repeats indefinitely, spawning new distiller processes on every cycle. Log file grows unbounded.",
+      "summary": "Omitting --no-session-persistence from a claude subprocess launched in a Stop hook causes the saved session to trigger another Stop hook event — creating an infinite loop of background processes.",
       "stack": [
         "claude-code@>=1.0"
       ]

@@ -1,6 +1,6 @@
 {
   "domain": "frontend",
-  "updated": "2026-04-13T10:50:43Z",
+  "updated": "2026-04-13T10:55:33Z",
   "node_count": 1,
   "fresh_node_count": 1,
   "nodes": [
@@ -24,7 +24,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "```",
+      "summary": "new Date(), Math.random(), window.*, localStorage.* render different values server vs client → Hydration failed error. Fix: useEffect + null initial state to defer browser-only values; dynamic(..., { ssr: false }) for whole components.",
       "stack": [
         "next@>=13",
         "react@>=18"
