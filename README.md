@@ -163,12 +163,9 @@ The agent silently redirects from old to new at retrieval time.
 
 ## Automation
 
-The entire contribution pipeline is automated — no human reviewer needed.
-
 **On every PR:**
 - Schema validated: required fields, type-specific fields, `id` matches file path, slug doesn't already exist on `main`, `conflicts_with` edges bidirectional
-- Claude bot reviews content: specific enough? atomic? scoped to versions? working example present? no PII?
-- Both pass → PR auto-merges
+- CI must be green before a maintainer can merge
 
 **On every merge to `main`:**
 - All `domains/*/index.json`, `catalog.json`, and `tags/*.json` rebuilt atomically from node frontmatter

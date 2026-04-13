@@ -2,30 +2,25 @@
 
 ## How It Works
 
-Everything is automated. You submit a node, bots handle the rest.
-
 ```
 /kage submit <node-file>
         │
         ▼
 PR opened on kage-core/kage-graph
         │
-        ├── validate-submission (CI)
-        │   ├── schema: required fields, type-specific fields, id matches path
-        │   ├── slug collision: new slug doesn't already exist on main
-        │   └── conflict edges: conflicts_with declared on both sides
-        │
-        ├── review-submission (Claude bot)
-        │   ├── specific? (names exact methods, flags, config keys)
-        │   ├── atomic? (one failure mode or one decision)
-        │   ├── scoped? (stack field has version range)
-        │   ├── working example included? (for gotcha/pattern/config)
-        │   └── no PII?
-        │
-        └── both pass → auto-merge → rebuild-indexes runs → live in minutes
+        └── validate-submission (CI)
+            ├── schema: required fields, type-specific fields, id matches path
+            ├── slug collision: new slug doesn't already exist on main
+            └── conflict edges: conflicts_with declared on both sides
+                    │
+                    CI passes
+                    │
+                    ▼
+            maintainer reviews content → approves → merge
+                    │
+                    ▼
+            rebuild-indexes runs → live on CDN in minutes
 ```
-
-No human needs to be in the loop for a standard submission.
 
 ---
 
