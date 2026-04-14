@@ -9,7 +9,7 @@
       "type": "gotcha",
       "title": "Claude Code hooks must use --permission-mode bypassPermissions for sub-agents",
       "severity": "hard-error",
-      "score": 90,
+      "score": 67,
       "uses": 1,
       "tags": [
         "claude-code",
@@ -23,7 +23,7 @@
       "updated": "2026-04-12",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Hooks run without a TTY — any permission prompt hangs indefinitely. Always pass --permission-mode bypassPermissions when invoking sub-agents from Stop/PreToolUse/PostToolUse hooks. Also pass --no-session-persistence to prevent recursive Stop hook firing.",
+      "summary": "Hooks run without a TTY \u2014 any permission prompt hangs indefinitely. Always pass --permission-mode bypassPermissions when invoking sub-agents from Stop/PreToolUse/PostToolUse hooks. Also pass --no-session-persistence to prevent recursive Stop hook firing.",
       "stack": [
         "claude-code@>=1.0"
       ]
@@ -47,7 +47,7 @@
       "updated": "2026-04-13",
       "fresh": true,
       "ttl_days": 730,
-      "summary": "Omitting --no-session-persistence from a claude subprocess launched in a Stop hook causes the saved session to trigger another Stop hook event — creating an infinite loop of background processes.",
+      "summary": "Omitting --no-session-persistence from a claude subprocess launched in a Stop hook causes the saved session to trigger another Stop hook event \u2014 creating an infinite loop of background processes.",
       "stack": [
         "claude-code@>=1.0"
       ]

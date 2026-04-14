@@ -6,7 +6,7 @@ domain: "ai-agents"
 tags: ["claude-code", "hooks", "agents", "permissions", "stop-hook", "background"]
 stack: ["claude-code@>=1.0"]
 severity: "hard-error"
-score: 90
+score: 67
 uses: 1
 votes: {up: 1, down: 0}
 added: "2026-04-12"
