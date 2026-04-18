@@ -227,6 +227,54 @@ Tags on nodes are **free-form** — use whatever terms describe the specific tec
 
 ---
 
+## Using kage-graph
+
+### Claude Code (via Kage)
+
+The `kage-graph` sub-agent is installed automatically by `/kage-install`. It retrieves nodes on demand when the main agent hits a known technology domain.
+
+### MCP — Claude Desktop, Cursor, Windsurf, Zed
+
+The MCP server is part of [Kage](https://github.com/kage-core/Kage). Add to your MCP config:
+
+```json
+{
+  "mcpServers": {
+    "kage-graph": {
+      "command": "npx",
+      "args": ["@kage-core/kage-graph-mcp"]
+    }
+  }
+}
+```
+
+Three tools become available in any MCP-compatible client:
+
+| Tool | What it does |
+|---|---|
+| `kage_search(query, domain?)` | Search nodes by query, returns ranked summaries |
+| `kage_fetch(domain, node_id)` | Fetch the full content of a specific node |
+| `kage_list_domains()` | List all domains with node counts and top tags |
+
+No API key. No account. Reads directly from GitHub's CDN.
+
+### Any HTTP client (curl, Python, Go, etc.)
+
+```bash
+# List domains
+curl https://raw.githubusercontent.com/kage-core/kage-graph/master/catalog.json
+
+# Search a domain index
+curl https://raw.githubusercontent.com/kage-core/kage-graph/master/domains/database/index.json
+
+# Fetch a node
+curl https://raw.githubusercontent.com/kage-core/kage-graph/master/domains/database/nodes/prisma-serverless-connection-exhaustion.md
+```
+
+The 3-step retrieval protocol: catalog → domain index → node. See [PROTOCOL.md](PROTOCOL.md) for the full language-agnostic spec.
+
+---
+
 ## Contributing
 
 Run `/kage submit <node-file>` from Claude Code — it prepares the node and opens the PR. Bots handle validation and review automatically. If the node passes, it merges and goes live within minutes.
