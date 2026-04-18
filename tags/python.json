@@ -1,0 +1,12 @@
+{
+  "tag": "python",
+  "node_count": 1,
+  "nodes": [
+    {
+      "id": "tooling/shell-env-var-inline-script",
+      "domain": "tooling",
+      "type": "gotcha",
+      "score": 50
+    }
+  ]
+}

@@ -1,6 +1,34 @@
 {
   "domain": "tooling",
-  "updated": "2026-04-13T00:00:00Z",
-  "node_count": 0,
-  "nodes": []
+  "updated": "2026-04-18T07:56:48Z",
+  "node_count": 1,
+  "fresh_node_count": 1,
+  "nodes": [
+    {
+      "id": "shell-env-var-inline-script",
+      "type": "gotcha",
+      "title": "Shell variables with special characters break inline scripts — use env var pattern",
+      "severity": "hard-error",
+      "score": 50,
+      "uses": 0,
+      "tags": [
+        "shell",
+        "bash",
+        "python",
+        "string-interpolation",
+        "quoting",
+        "inline-script"
+      ],
+      "added": "2026-04-18",
+      "updated": "2026-04-18",
+      "fresh": true,
+      "ttl_days": 730,
+      "summary": "Inline script fails with a syntax error when a shell variable contains an apostrophe, quote, backslash, or Unicode.",
+      "stack": [
+        "bash",
+        "zsh",
+        "python3"
+      ]
+    }
+  ]
 }

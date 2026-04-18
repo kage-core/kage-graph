@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "schema_version": "2.0",
-  "updated": "2026-04-13T10:55:33Z",
+  "updated": "2026-04-18T07:56:48Z",
   "domains": {
     "performance": {
       "nodes": 0,
@@ -92,11 +92,18 @@
       }
     },
     "tooling": {
-      "nodes": 0,
-      "fresh_nodes": 0,
-      "top_tags": [],
+      "nodes": 1,
+      "fresh_nodes": 1,
+      "top_tags": [
+        "shell",
+        "bash",
+        "python",
+        "string-interpolation",
+        "quoting",
+        "inline-script"
+      ],
       "node_types": {
-        "gotcha": 0,
+        "gotcha": 1,
         "pattern": 0,
         "config": 0,
         "decision": 0,
@@ -285,7 +292,7 @@
     "api-design/webhook-idempotency-key",
     "payments/stripe-webhook-signature-raw-body"
   ],
-  "total_nodes": 11,
+  "total_nodes": 12,
   "total_uses_30d": 1,
   "contributors": 1
 }

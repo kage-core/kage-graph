@@ -6,7 +6,7 @@
       "id": "ai-agents/claude-code-hooks-bypass-permissions",
       "domain": "ai-agents",
       "type": "gotcha",
-      "score": 90
+      "score": 67
     },
     {
       "id": "ai-agents/claude-code-no-session-persistence",
