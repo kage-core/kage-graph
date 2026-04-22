@@ -287,10 +287,10 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
+    "tooling/shell-env-var-inline-script",
     "database/prisma-serverless-connection-exhaustion",
     "storage/s3-presigned-url-content-type",
-    "api-design/webhook-idempotency-key",
-    "payments/stripe-webhook-signature-raw-body"
+    "ai-agents/claude-code-no-session-persistence"
   ],
   "total_nodes": 12,
   "total_uses_30d": 1,
