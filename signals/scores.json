@@ -1,37 +1,12 @@
 {
-  "generated": "2026-04-22",
+  "generated": "2026-04-23",
   "scores": {
-    "tooling/shell-env-var-inline-script": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
     "database/prisma-serverless-connection-exhaustion": {
       "score": 50,
       "uses": 0,
       "fresh": true
     },
     "storage/s3-presigned-url-content-type": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
-    "ai-agents/claude-code-no-session-persistence": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
-    "ai-agents/claude-code-hooks-bypass-permissions": {
-      "score": 67,
-      "uses": 1,
-      "fresh": true
-    },
-    "frontend/nextjs-hydration-mismatch": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
-    "deployment/docker-env-not-in-image": {
       "score": 50,
       "uses": 0,
       "fresh": true
@@ -46,7 +21,12 @@
       "uses": 0,
       "fresh": true
     },
-    "testing/vitest-mock-module-hoisting": {
+    "tooling/shell-env-var-inline-script": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "auth/jwt-expiry-short-lived-access": {
       "score": 50,
       "uses": 0,
       "fresh": true
@@ -56,7 +36,27 @@
       "uses": 0,
       "fresh": true
     },
-    "auth/jwt-expiry-short-lived-access": {
+    "deployment/docker-env-not-in-image": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "frontend/nextjs-hydration-mismatch": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "testing/vitest-mock-module-hoisting": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "ai-agents/claude-code-hooks-bypass-permissions": {
+      "score": 67,
+      "uses": 1,
+      "fresh": true
+    },
+    "ai-agents/claude-code-no-session-persistence": {
       "score": 50,
       "uses": 0,
       "fresh": true
