@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-16",
+  "generated": "2026-05-17",
   "scores": {
     "api-design/webhook-idempotency-key": {
       "score": 50,
