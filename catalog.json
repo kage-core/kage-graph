@@ -287,10 +287,10 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
-    "api-design/webhook-idempotency-key",
-    "testing/vitest-mock-module-hoisting",
+    "ai-agents/claude-code-no-session-persistence",
+    "email/resend-react-email-plain-text",
     "storage/s3-presigned-url-content-type",
-    "frontend/nextjs-hydration-mismatch"
+    "api-design/webhook-idempotency-key"
   ],
   "total_nodes": 12,
   "total_uses_30d": 1,
