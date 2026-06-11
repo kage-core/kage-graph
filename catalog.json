@@ -287,10 +287,10 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
-    "ai-agents/claude-code-no-session-persistence",
+    "payments/stripe-webhook-signature-raw-body",
     "email/resend-react-email-plain-text",
-    "storage/s3-presigned-url-content-type",
-    "api-design/webhook-idempotency-key"
+    "tooling/shell-env-var-inline-script",
+    "auth/jwt-expiry-short-lived-access"
   ],
   "total_nodes": 12,
   "total_uses_30d": 1,
