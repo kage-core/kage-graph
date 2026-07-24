@@ -287,10 +287,10 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
+    "api-design/webhook-idempotency-key",
+    "email/resend-react-email-plain-text",
     "testing/vitest-mock-module-hoisting",
-    "frontend/nextjs-hydration-mismatch",
-    "database/prisma-serverless-connection-exhaustion",
-    "email/resend-react-email-plain-text"
+    "auth/jwt-expiry-short-lived-access"
   ],
   "total_nodes": 12,
   "total_uses_30d": 1,
