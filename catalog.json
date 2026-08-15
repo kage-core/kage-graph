@@ -287,9 +287,9 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
-    "api-design/webhook-idempotency-key",
     "email/resend-react-email-plain-text",
     "testing/vitest-mock-module-hoisting",
+    "deployment/docker-env-not-in-image",
     "auth/jwt-expiry-short-lived-access"
   ],
   "total_nodes": 12,
