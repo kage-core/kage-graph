@@ -1,29 +1,19 @@
 {
-  "generated": "2026-09-02",
+  "generated": "2026-09-03",
   "scores": {
-    "email/resend-react-email-plain-text": {
+    "storage/s3-presigned-url-content-type": {
       "score": 50,
       "uses": 0,
       "fresh": true
     },
-    "testing/vitest-mock-module-hoisting": {
+    "ai-agents/claude-code-no-session-persistence": {
       "score": 50,
       "uses": 0,
       "fresh": true
     },
-    "deployment/docker-env-not-in-image": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
-    "auth/jwt-expiry-short-lived-access": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
-    "api-design/webhook-idempotency-key": {
-      "score": 50,
-      "uses": 0,
+    "ai-agents/claude-code-hooks-bypass-permissions": {
+      "score": 67,
+      "uses": 1,
       "fresh": true
     },
     "tooling/shell-env-var-inline-script": {
@@ -36,27 +26,37 @@
       "uses": 0,
       "fresh": true
     },
-    "ai-agents/claude-code-hooks-bypass-permissions": {
-      "score": 67,
-      "uses": 1,
-      "fresh": true
-    },
-    "ai-agents/claude-code-no-session-persistence": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
     "frontend/nextjs-hydration-mismatch": {
       "score": 50,
       "uses": 0,
       "fresh": true
     },
-    "storage/s3-presigned-url-content-type": {
+    "deployment/docker-env-not-in-image": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "api-design/webhook-idempotency-key": {
       "score": 50,
       "uses": 0,
       "fresh": true
     },
     "payments/stripe-webhook-signature-raw-body": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "auth/jwt-expiry-short-lived-access": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "email/resend-react-email-plain-text": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "testing/vitest-mock-module-hoisting": {
       "score": 50,
       "uses": 0,
       "fresh": true
