@@ -290,7 +290,7 @@
     "storage/s3-presigned-url-content-type",
     "ai-agents/claude-code-no-session-persistence",
     "auth/jwt-expiry-short-lived-access",
-    "email/resend-react-email-plain-text"
+    "payments/stripe-webhook-signature-raw-body"
   ],
   "total_nodes": 12,
   "total_uses_30d": 1,

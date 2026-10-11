@@ -2,14 +2,14 @@
   "domain": "email",
   "updated": "2026-04-18T07:56:48Z",
   "node_count": 1,
-  "fresh_node_count": 1,
+  "fresh_node_count": 0,
   "nodes": [
     {
       "id": "resend-react-email-plain-text",
       "type": "config",
       "title": "Resend + React Email requires explicit plain-text fallback to avoid spam filters",
       "severity": "warning",
-      "score": 50,
+      "score": 42,
       "uses": 0,
       "tags": [
         "resend",
@@ -21,7 +21,7 @@
       ],
       "added": "2026-04-13",
       "updated": "2026-04-13",
-      "fresh": true,
+      "fresh": false,
       "ttl_days": 180,
       "summary": "React Email renders HTML only by default. Resend sends HTML-only emails without a text field, which spam filters penalize. Fix: render with { plainText: true } to get the text version and pass both html and text fields to resend.emails.send().",
       "stack": [

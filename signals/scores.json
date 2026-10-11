@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-10",
+  "generated": "2026-10-11",
   "scores": {
     "storage/s3-presigned-url-content-type": {
       "score": 50,
@@ -22,9 +22,9 @@
       "fresh": true
     },
     "email/resend-react-email-plain-text": {
-      "score": 50,
+      "score": 42,
       "uses": 0,
-      "fresh": true
+      "fresh": false
     },
     "payments/stripe-webhook-signature-raw-body": {
       "score": 50,
