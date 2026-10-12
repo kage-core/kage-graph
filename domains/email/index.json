@@ -9,7 +9,7 @@
       "type": "config",
       "title": "Resend + React Email requires explicit plain-text fallback to avoid spam filters",
       "severity": "warning",
-      "score": 42,
+      "score": 50,
       "uses": 0,
       "tags": [
         "resend",

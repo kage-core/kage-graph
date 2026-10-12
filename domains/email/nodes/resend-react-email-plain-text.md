@@ -6,7 +6,7 @@ domain: "email"
 tags: ["resend", "react-email", "email", "spam", "plain-text", "deliverability"]
 stack: ["resend@>=1.0", "@react-email/components@>=0.0.14"]
 severity: "warning"
-score: 42
+score: 50
 uses: 0
 votes: {up: 0, down: 0}
 added: "2026-04-13"

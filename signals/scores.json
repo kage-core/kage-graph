@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-11",
+  "generated": "2026-10-12",
   "scores": {
     "storage/s3-presigned-url-content-type": {
       "score": 50,
@@ -22,7 +22,7 @@
       "fresh": true
     },
     "email/resend-react-email-plain-text": {
-      "score": 42,
+      "score": 50,
       "uses": 0,
       "fresh": false
     },
