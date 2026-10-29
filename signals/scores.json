@@ -1,20 +1,10 @@
 {
-  "generated": "2026-10-28",
+  "generated": "2026-10-29",
   "scores": {
-    "deployment/docker-env-not-in-image": {
+    "email/resend-react-email-plain-text": {
       "score": 50,
       "uses": 0,
-      "fresh": true
-    },
-    "tooling/shell-env-var-inline-script": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
-    "testing/vitest-mock-module-hoisting": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
+      "fresh": false
     },
     "api-design/webhook-idempotency-key": {
       "score": 50,
@@ -26,27 +16,17 @@
       "uses": 0,
       "fresh": true
     },
-    "database/prisma-serverless-connection-exhaustion": {
+    "deployment/docker-env-not-in-image": {
       "score": 50,
       "uses": 0,
       "fresh": true
-    },
-    "ai-agents/claude-code-no-session-persistence": {
-      "score": 50,
-      "uses": 0,
-      "fresh": true
-    },
-    "ai-agents/claude-code-hooks-bypass-permissions": {
-      "score": 67,
-      "uses": 1,
-      "fresh": true
-    },
-    "email/resend-react-email-plain-text": {
-      "score": 50,
-      "uses": 0,
-      "fresh": false
     },
     "auth/jwt-expiry-short-lived-access": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "tooling/shell-env-var-inline-script": {
       "score": 50,
       "uses": 0,
       "fresh": true
@@ -56,7 +36,27 @@
       "uses": 0,
       "fresh": true
     },
+    "database/prisma-serverless-connection-exhaustion": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "ai-agents/claude-code-hooks-bypass-permissions": {
+      "score": 67,
+      "uses": 1,
+      "fresh": true
+    },
+    "ai-agents/claude-code-no-session-persistence": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
     "payments/stripe-webhook-signature-raw-body": {
+      "score": 50,
+      "uses": 0,
+      "fresh": true
+    },
+    "testing/vitest-mock-module-hoisting": {
       "score": 50,
       "uses": 0,
       "fresh": true
