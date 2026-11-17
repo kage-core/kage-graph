@@ -287,10 +287,10 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
-    "tooling/shell-env-var-inline-script",
+    "testing/vitest-mock-module-hoisting",
     "auth/jwt-expiry-short-lived-access",
-    "api-design/webhook-idempotency-key",
-    "deployment/docker-env-not-in-image"
+    "storage/s3-presigned-url-content-type",
+    "tooling/shell-env-var-inline-script"
   ],
   "total_nodes": 12,
   "total_uses_30d": 1,
