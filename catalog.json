@@ -287,9 +287,9 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
-    "tooling/shell-env-var-inline-script",
-    "auth/jwt-expiry-short-lived-access",
-    "api-design/webhook-idempotency-key",
+    "frontend/nextjs-hydration-mismatch",
+    "storage/s3-presigned-url-content-type",
+    "database/prisma-serverless-connection-exhaustion",
     "deployment/docker-env-not-in-image"
   ],
   "total_nodes": 12,
