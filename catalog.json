@@ -287,10 +287,10 @@
   },
   "hot_nodes": [
     "ai-agents/claude-code-hooks-bypass-permissions",
-    "testing/vitest-mock-module-hoisting",
-    "auth/jwt-expiry-short-lived-access",
+    "frontend/nextjs-hydration-mismatch",
     "storage/s3-presigned-url-content-type",
-    "tooling/shell-env-var-inline-script"
+    "database/prisma-serverless-connection-exhaustion",
+    "deployment/docker-env-not-in-image"
   ],
   "total_nodes": 12,
   "total_uses_30d": 1,
